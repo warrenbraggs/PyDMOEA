@@ -68,41 +68,45 @@ class DynamicUtils:
 		pareto_front = [[]]
 		rank = [0] * len(population)
 
+
 		for p in range(len(population)):
 			dominated_solutions[p] = []
 			count[p] = 0
 
 			for q in range(p+1, len(population)):
 				if self.isDominated(self.objective_values[p], self.objective_values[q]):
-					dominated_solutions[p].append(self.objective_values[q])
-				else:
+					if self.objective_values[q] not in dominated_solutions[p]:
+						dominated_solutions[p].append(self.objective_values[q])
+				elif self.isDominated(self.objective_values[q], self.objective_values[p]):
 					count[p] = count[p] + 1
 			if count[p] == 0:				
 				rank[p] = 0     
 				pareto_front[0].append(self.objective_values[p])
 
-		print('First Pareto front', pareto_front[0])
-		print('Dominated Solutions', dominated_solutions)
+		print('First Pareto front', pareto_front[0], '\n')	
 
-
-		
 		i = 0
+
+		print(len(pareto_front[i]))
 
 		while len(pareto_front[i]) > 0:
 			store_temp_fronts = []		# representing Q
 			for p in range(len(pareto_front[i])):
-				for q in range(len(dominated_solutions[p])):
+				for q in range(0, len(dominated_solutions)):
 					count[q] = count[q] - 1 
 					if count[q] == 0:
 						rank[q] = i + 1
 						store_temp_fronts.append(self.objective_values[q])
-			i = i + 1
+			
+			print(store_temp_fronts)
 			pareto_front.append(store_temp_fronts)
+			i = i + 1
 
-		print('second round', pareto_front[0])
+
+		print('second round', pareto_front)
 
 		return pareto_front
-			
+
 
 	def check_layers(self, front):
 		#print(front)
