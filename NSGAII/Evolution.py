@@ -51,6 +51,7 @@ class Evolution:
 
     def evolveDNSGAII(self, population:list):
         objective_values = self.genetic.init_population(population)
+        print(objective_values)
         pareto = self.genetic.fast_non_dominated_sort(population)
         parent = self.genetic.check_layers(pareto)
 

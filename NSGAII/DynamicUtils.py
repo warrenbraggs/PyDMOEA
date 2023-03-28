@@ -37,18 +37,6 @@ class DynamicUtils:
 
 		#if ((pop1[i] > pop1[j] and pop2[i] > pop2[j]) or (pop1[i] >= pop1[j] and pop2[i] > pop2[j]) or (pop1[i] > pop1[j] and pop2[i] >= pop2[j])):		
 		return (True and pop1 <= pop2) and (False or pop1 < pop2)
-		
-
-	
-	def dominates(self, other_individual):
-		and_condition = True
-		or_condition = False
-		for first, second in zip(self.objectives, other_individual.objectives):
-			and_condition = and_condition and first <= second
-			or_condition = or_condition or first < second
-		return (and_condition and or_condition)
-
-		
 
 	# Generation of random population used for dynamic optimisation
     
@@ -80,27 +68,25 @@ class DynamicUtils:
 		pareto_front = [[]]
 		rank = [0] * len(population)
 
-		for p in range(len(population)-1):
+		for p in range(len(population)):
 			dominated_solutions[p] = []
 			count[p] = 0
 
-			for q in range(len(population)-1):
-				if self.isDominated(self.objective_values[p], self.objective_values[p+1]):
+			for q in range(p+1, len(population)):
+				if self.isDominated(self.objective_values[p], self.objective_values[q]):
 					dominated_solutions[p].append(self.objective_values[q])
 				else:
 					count[p] = count[p] + 1
 			if count[p] == 0:				
 				rank[p] = 0     
-				pareto_front.append(self.objective_values[p])
+				pareto_front[0].append(self.objective_values[p])
+
+		print('First Pareto front', pareto_front[0])
+		print('Dominated Solutions', dominated_solutions)
+
 
 		
-		i = 1
-		print(pareto_front)
-		print('\n\n')
-		print(dominated_solutions)
-
-		print('\n\n')
-
+		i = 0
 
 		while len(pareto_front[i]) > 0:
 			store_temp_fronts = []		# representing Q
@@ -113,16 +99,16 @@ class DynamicUtils:
 			i = i + 1
 			pareto_front.append(store_temp_fronts)
 
-		
-		del pareto_front[0]
+		print('second round', pareto_front[0])
+
 		return pareto_front
 			
 
 	def check_layers(self, front):
-		print(front)
-		print(len(front))
-		print(front[0][0])
-		print(front[1][0])
+		#print(front)
+		#print(len(front))
+		#print(front[0][0])
+		#print(front[1][0])
 		newPopulation = []
 		
 		for i in range(len(front)):
