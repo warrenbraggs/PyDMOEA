@@ -13,7 +13,7 @@ import matplotlib.pyplot as plt
 
 
 
-n_individuals = 10 #100
+n_individuals = 100 #100
 n_generations = 10
 n_variables = 30
 min = 0
@@ -29,35 +29,24 @@ population = []
 for i in range(n_individuals):
     population = dynamic_evolution.generate_random_solutions(min, max, n_variables)
 
-
-# population.append(0.35)
-# population.append(0.67)
-# population.append(0.12)
-# population.append(0.56)
-# population.append(0.36)
-# population.append(0.58)
-# population.append(0.26)
-# population.append(0.39)
-# population.append(0.89)
-# population.append(0.74)
-
 print(population)
 
 print(';;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;')
 
-print(algorithm.evolve('DNSGAII', population))
+#print(algorithm.evolve('DNSGAII', population))
+
+func = []
+for i in algorithm.evolve('DNSGAII', population):
+    for j in i:
+        func.append(j)
 
 
-# func = []
-# for i in algorithm.evolve('DNSGAII', population):    
-#     func.append(i)
-#     print(i)
 
-# function1 = [i[0] for i in func]
+function1 = [i[0] for i in func]
 
-# function2 = [i[1] for i in func]
-# plt.xlabel('Function 1', fontsize=15)
-# plt.ylabel('Function 2', fontsize=15)
-# plt.scatter(function1, function2)
-# plt.show()
+function2 = [i[1] for i in func]
+plt.xlabel('Function 1', fontsize=15)
+plt.ylabel('Function 2', fontsize=15)
+plt.scatter(function1, function2)
+plt.show()
 

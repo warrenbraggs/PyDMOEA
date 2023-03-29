@@ -14,6 +14,7 @@ class ZDT1(Problem):
         return f1, f2
 
     def f1(self, x):
+        print(x[0])
         return x[0]
 
     def f2(self, x):

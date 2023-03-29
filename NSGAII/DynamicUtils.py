@@ -47,14 +47,22 @@ class DynamicUtils:
 		for i in range(self.n_individuals):
 			temp = []
 			for j in range(n_variables):
-				variable_values = round(random.uniform(min, max),2)
+				#variable_values = round(random.uniform(min, max),2)
+				variable_values = random.uniform(min, max)
 				temp.append(variable_values)
 			solutions.append(temp)
 
 		return solutions
 	
-	def init_population(self, population):
-		for i in range(self.n_individuals):			
+	# def init_population(self, population):
+	# 	for i in range(self.n_individuals):			
+	# 		f1, f2 = self.problem.evaluate_objective_values(population[i])
+	# 		temp = [f1, f2]
+	# 		self.objective_values.append(temp)
+	# 	return self.objective_values
+	
+	def init_population(self, population, n):
+		for i in range(n):		
 			f1, f2 = self.problem.evaluate_objective_values(population[i])
 			temp = [f1, f2]
 			self.objective_values.append(temp)
@@ -83,12 +91,7 @@ class DynamicUtils:
 				rank[p] = 0     
 				pareto_front[0].append(self.objective_values[p])
 
-		print('First Pareto front', pareto_front[0], '\n')	
-
 		i = 0
-
-		print(len(pareto_front[i]))
-
 		while len(pareto_front[i]) > 0:
 			store_temp_fronts = []		# representing Q
 			for p in range(len(pareto_front[i])):
@@ -98,12 +101,9 @@ class DynamicUtils:
 						rank[q] = i + 1
 						store_temp_fronts.append(self.objective_values[q])
 			
-			print(store_temp_fronts)
 			pareto_front.append(store_temp_fronts)
 			i = i + 1
 
-
-		print('second round', pareto_front)
 
 		return pareto_front
 
@@ -138,7 +138,7 @@ class DynamicUtils:
 				distance[0] = distance[l-1] = 123456789
 
 				for i in range(1,l-1):
-					distance[i] = distance[i]+ (pareto_front[i+1] - pareto_front[i-1])/(max(pareto_front)-min(pareto_front))
+					distance[i] = distance[i]+ (pareto_front[i+1][0] - pareto_front[i-1][0])/(max(pareto_front[i])-min(pareto_front[i]))
 
 
 			return distance
@@ -148,8 +148,6 @@ class DynamicUtils:
 	def sbx(self, parent1, parent2, n_c):
 		# http://doi.acm.org/10.1145/1276958.1277190
 
-
-
 		for i, (x1, x2) in enumerate(zip(parent1, parent2)):
 			u = random.random()
 			if u <= 0.5:
@@ -157,15 +155,12 @@ class DynamicUtils:
 			else:
 				beta = (1/(2 * (1 - u))) ** (1/(n_c + 1))
 
-				
-			parent1 = 0.5 * ((1 + beta) * x1 + (1 - beta) * x2)
-			parent2 = 0.5 * ((1 - beta) * x1 + (1 + beta) * x2)
-			#child1.append(c1)
-			#child2.append(c2)
 
-			child = [parent1, parent2]
+			parent1[i] = 0.5 * ((1 + beta) * x1 + (1 - beta) * x2)
+			parent2[i] = 0.5 * ((1 - beta) * x1 + (1 + beta) * x2)
 
-		return child
+		#child = [parent1, parent2]
+		return [parent1, parent2]
 
 
 	def polynomial_mutation(self, population, n_mutation):
