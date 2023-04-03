@@ -25,7 +25,3 @@ class Problem:
     def f2(self, x):
         """TODO: add documentation """
         pass
-
-    @abstractmethod
-    def perfect_pareto_front(self):
-        pass

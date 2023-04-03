@@ -1,13 +1,15 @@
 import random
-import numpy as np
 
 class DynamicUtils:
 
-	def __init__(self, problem, n_individuals=100, n_generations=10):
+	def __init__(self, problem, n_individuals, n_generations, n_variables, min, max):
 		self.problem = problem
 		self.n_individuals = n_individuals
 		self.n_generations = n_generations
+		self.n_variables = n_variables
 		self.objective_values = []
+		self.min = min
+		self.max = max
 
 	# Helper function to check if the element in the list
 	def check_list(self, list):    	
@@ -40,28 +42,21 @@ class DynamicUtils:
 
 	# Generation of random population used for dynamic optimisation
     
-	def generate_random_solutions(self, min, max, n_variables):
+	def generate_random_solutions(self):
 		"""TODO: add documentation """
 		solutions = []
 		
 		for i in range(self.n_individuals):
 			temp = []
-			for j in range(n_variables):
+			for j in range(self.n_variables):
 				#variable_values = round(random.uniform(min, max),2)
-				variable_values = random.uniform(min, max)
+				variable_values = random.uniform(self.min, self.max)
 				temp.append(variable_values)
 			solutions.append(temp)
 
 		return solutions
 	
-	# def init_population(self, population):
-	# 	for i in range(self.n_individuals):			
-	# 		f1, f2 = self.problem.evaluate_objective_values(population[i])
-	# 		temp = [f1, f2]
-	# 		self.objective_values.append(temp)
-	# 	return self.objective_values
-	
-	def init_population(self, population, n):
+	def evaluate_objective_values(self, population, n):
 		for i in range(n):		
 			f1, f2 = self.problem.evaluate_objective_values(population[i])
 			temp = [f1, f2]
@@ -74,6 +69,7 @@ class DynamicUtils:
 		count = [0] * len(population)	# domination counter n
 
 		pareto_front = [[]]
+		pareto_front_obj = [[]]
 		rank = [0] * len(population)
 
 
@@ -93,6 +89,7 @@ class DynamicUtils:
 
 		i = 0
 		while len(pareto_front[i]) > 0:
+			store_temp_fronts_obj = []		# representing Q
 			store_temp_fronts = []		# representing Q
 			for p in range(len(pareto_front[i])):
 				for q in range(0, len(dominated_solutions)):
@@ -104,15 +101,10 @@ class DynamicUtils:
 			pareto_front.append(store_temp_fronts)
 			i = i + 1
 
-
 		return pareto_front
 
 
 	def check_layers(self, front):
-		#print(front)
-		#print(len(front))
-		#print(front[0][0])
-		#print(front[1][0])
 		newPopulation = []
 		
 		for i in range(len(front)):
@@ -147,6 +139,11 @@ class DynamicUtils:
 	#n_c is the distribution index
 	def sbx(self, parent1, parent2, n_c):
 		# http://doi.acm.org/10.1145/1276958.1277190
+		"""
+		A large value of ηc gives a higher probability for creating ‘near-parent’ 
+		solutions (thereby allowing a focussed search) and a small value of ηc allows 
+		distant solutions to be selected as offspring (thereby allowing to make diverse search).
+		"""
 
 		for i, (x1, x2) in enumerate(zip(parent1, parent2)):
 			u = random.random()
@@ -159,27 +156,73 @@ class DynamicUtils:
 			parent1[i] = 0.5 * ((1 + beta) * x1 + (1 - beta) * x2)
 			parent2[i] = 0.5 * ((1 - beta) * x1 + (1 + beta) * x2)
 
-		#child = [parent1, parent2]
 		return [parent1, parent2]
 
+		# child1 = []
+		# child2 = []
 
-	def polynomial_mutation(self, population, n_mutation):
+		# for i in range(2):
+		# 	#print(parent1[i], parent2[i])
+		# 	u = random.random()
+		# 	if u <= 0.5:
+		# 		beta = (2 * u) ** (1/(n_c + 1))
+		# 	else:
+		# 		beta = (1/(2 * (1 - u))) ** (1/(n_c + 1))
+
+		# 	child1.append(0.5 * ((1 + beta) * parent1[i] + (1 - beta) * parent2[i]))
+		# 	child2.append(0.5 * ((1 - beta) * parent1[i] + (1 + beta) * parent2[i]))
+
+		
+		# return [child1, child2]
+
+
+	def polynomial_mutation(self, population, eta):
 		# https://www.sciencedirect.com/science/article/abs/pii/S0020025515007276
 
+		# Add a for loop for iterating each variable and add probability check
+		
+		xmin = 0
+		xmax = 1
 		for i in range(len(population)):
+			x = population[i]
 			u = random.random()
 			if u <= 0.5:
-				delta = (2 * u) ** ((1 / (n_mutation + 1))) - 1				
+				delta = (2 * u) ** ((1 / (eta + 1))) - 1	
+				delta_x = xmin - x			
 			else:
-				delta = 1 - (2 * (1 - u)) ** (1 / (n_mutation + 1))
+				delta = 1 - (2 * (1 - u)) ** (1 / (eta + 1))
+				delta_x = xmax - x
 
-			x = population[i]
-			xmin = 0
-			xmax = 1
-			delta_x = max(xmin - x, x - xmax)
-			population[i] = x + delta_x * delta
+			x_ = x + delta_x * delta
+
+			population[i] = x_
 
 		return population
+	
+	def create_child(self, population):
+		child = []
+		
+		while len(child) < len(population):
+			parent1 = self.tournament_selection(population)
+			parent2 = parent1
+
+			while parent1 == parent2:
+				parent2 = self.tournament_selection(population)
+					
+			temp_child = self.sbx(parent1[0], parent2[0], 200)
+			#temp_child[0] = self.genetic.polynomial_mutation(temp_child[0], 20, 1/self.n_variables)
+			#temp_child[1] =self.genetic.polynomial_mutation(temp_child[1], 20, 1/self.n_variables)
+			temp_child[0] = self.polynomial_mutation(temp_child[0], 200)
+			temp_child[1] = self.polynomial_mutation(temp_child[1], 200)
+
+
+			
+			# Init population + append children objectives to population objectives
+			self.evaluate_objective_values(temp_child,2)
+
+			child.append(temp_child)
+		
+		return child
 
 
 	def get_fitness(self):
@@ -278,7 +321,7 @@ class DynamicUtils:
 
 	# The tournment selection implemented takes as input a list and determines the dominant among the others
 	def tournament_selection(self, population):			
-		tournament_size = 2	# randomly chosen
+		tournament_size = self.n_variables	# randomly chosen
 		tournament = []
 		best_individual = []
 

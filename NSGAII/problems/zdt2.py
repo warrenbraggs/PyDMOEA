@@ -1,11 +1,9 @@
-import math
 from Problem import Problem
 
-class ZDT1(Problem):
+class ZDT2(Problem):
 
     def __init__(self, n_variables):
         self.n_variables = 30
-
 
     def evaluate_objective_values(self, elements):
         f1 = self.f1(elements)
@@ -19,5 +17,5 @@ class ZDT1(Problem):
     def f2(self, x):
         sigma = sum(x[1:])
         g = 1 + sigma*9/(self.n_variables - 1)
-        h = 1 - math.sqrt(self.f1(x)/g)
+        h = 1 - (self.f1(x)/g) ** 2
         return g * h

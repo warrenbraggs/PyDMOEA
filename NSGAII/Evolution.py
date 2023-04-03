@@ -1,144 +1,77 @@
 from DynamicUtils import DynamicUtils
-import numpy as np
 from tqdm import tqdm
 
 class Evolution:
 
-    def __init__(self, problem, n_individuals=100, n_generations=10):
-        self.genetic = DynamicUtils(problem, n_individuals)
+    def __init__(self, problem, n_individuals, n_generations, n_variables, min, max):
+        self.genetic = DynamicUtils(problem, n_individuals, n_generations, n_variables, min, max)
         self.n_individuals = n_individuals
         self.n_generations = n_generations
+        self.n_variables = n_variables
 
 
     def evolve(self, name, population):
-        if name == 'DNSGAII':
-            return self.evolveDNSGAII(population)
+        if name == 'NSGAII':
+            return self.evolveNSGAII(population)
         
         if name == 'COEA':
             return self.evolveCOEA(population)
             
 
-    def temp(self, population:list):
-        objective_values = self.genetic.init_population(population,10)
+    def evolveNSGAII(self, population:list):
+        self.genetic.evaluate_objective_values(population,self.n_individuals)
         pareto = self.genetic.fast_non_dominated_sort(population)
-        print(pareto)
-        #parent = self.genetic.check_layers(pareto)
-
-        for i in range(len(pareto)-1):
-            self.genetic.crowding_distance(pareto[i])
         
-        for i in tqdm (range (self.n_generations)):
-            child = []
-
-            while len(child) < len(population):
-                parent1 = self.genetic.tournament_selection(population)
-                parent2 = parent1
-
-                while parent1 == parent2:
-                    parent2 = self.genetic.tournament_selection(population)
-                        
-                
-                child = self.genetic.sbx(parent1[0], parent2[0], 10)
-                self.genetic.polynomial_mutation(child[0], 5)
-                self.genetic.polynomial_mutation(child[1], 5)
-                
-                # Init population + append children objectives to population objectives
-                self.genetic.init_population(child,2)
-
-                print('Pop', population , '\n')
-                print('child', child, '\n')
-                
-                child = population[2].extend(child)
-                print('New Child', child)
-                break
-            break
-            
-            pareto = self.genetic.fast_non_dominated_sort(child)
-            #parent = self.genetic.check_layers(pareto)
-        
-    
-
-    def evolveDNSGAII(self, population:list):
-        objective_values = self.genetic.init_population(population,self.n_individuals)
-        pareto = self.genetic.fast_non_dominated_sort(population)
-        print(pareto)
-        #parent = self.genetic.check_layers(pareto)
-
-        for i in range(len(pareto)-1):
-            self.genetic.crowding_distance(pareto[i])
-        
+        distance = []
+        for i in range(len(pareto)):
+            distance.append(self.genetic.crowding_distance(pareto[i]))
         
         """CREATION OF A CHILD"""
-        child = []
-        while len(child) < len(population):
-            parent1 = self.genetic.tournament_selection(population)
-            parent2 = parent1
-
-            while parent1 == parent2:
-                parent2 = self.genetic.tournament_selection(population)
-                    
-            
-            temp_child = self.genetic.sbx(parent1[0], parent2[0], 30)
-            self.genetic.polynomial_mutation(temp_child[0], 5)
-            self.genetic.polynomial_mutation(temp_child[1], 5)
-            
-            # Init population + append children objectives to population objectives
-            self.genetic.init_population(temp_child,2)
-
-            child.append(temp_child)
-
+        child = self.genetic.create_child(population)
         """END"""
-
-        returned_population = None
-        
+                
         for i in tqdm (range (self.n_generations)):
             population.extend(child)
-            self.genetic.fast_non_dominated_sort(population)
+            pareto = self.genetic.fast_non_dominated_sort(population)
             
             newPopulation = []
-            index = 0
 
-            while len(newPopulation) + len(pareto[index]) < 10:
-                self.genetic.crowding_distance(pareto[index])
-                newPopulation.extend(pareto[index])
-                index += 1
+            # while len(newPopulation) + len(pareto[index]) < self.n_individuals:
+            #     self.genetic.crowding_distance(pareto[index])
+            #     newPopulation.extend(pareto[index])
+            #     if pareto[index]:
+            #         index += 1
+            #     else:
+            #         break
 
-            self.genetic.crowding_distance(pareto[index])
-            # TOO IMPLEMENT
-            #pareto[index].sort(key=lambda individual: individual.crowding_distance, reverse=True) 
+            for j in range(len(pareto)-1):
+                if pareto[j]:
+                    if len(newPopulation) + len(pareto[j]) < self.n_individuals:
+                        distance[j] = self.genetic.crowding_distance(pareto[j])
+                        newPopulation.extend(pareto[j])
+                else:
+                    break
 
-            newPopulation.extend(pareto[index][0:30 - len(newPopulation)])
 
-            returned_population = population
+            distance[j] = self.genetic.crowding_distance(pareto[j]) 
+            pareto[j].sort(key=lambda distance: distance, reverse=True) 
+            
+            newPopulation.extend(pareto[j][0:self.n_variables - len(newPopulation)])
+
             returned_pareto = pareto
             population = newPopulation
 
-            self.genetic.fast_non_dominated_sort(population)
-            for i in range(len(pareto)-1):
-                self.genetic.crowding_distance(pareto[i])
+            pareto = self.genetic.fast_non_dominated_sort(population)
+            for p in range(len(pareto)-1):
+                distance[p] = self.genetic.crowding_distance(pareto[p])
             
             """CREATION OF A CHILD"""
-            child = []
-            while len(child) < len(population):
-                parent1 = self.genetic.tournament_selection(population)
-                parent2 = parent1
-
-                while parent1 == parent2:
-                    parent2 = self.genetic.tournament_selection(population)
-                        
-                
-                temp_child = self.genetic.sbx(parent1[0], parent2[0], 30)
-                self.genetic.polynomial_mutation(temp_child[0], 5)
-                self.genetic.polynomial_mutation(temp_child[1], 5)
-                
-                # Init population + append children objectives to population objectives
-                self.genetic.init_population(temp_child,2)
-
-                child.append(temp_child)
-
+            child = self.genetic.create_child(population)
             """END"""            
+        
+        
 
-        return returned_pareto
+        return pareto
 
         
     def evolveCOEA(self, population):
