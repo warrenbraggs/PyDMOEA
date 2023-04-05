@@ -12,7 +12,6 @@ from pymoo.problems import get_problem
 from pymoo.indicators.igd import IGD
 from pymoo.indicators.hv import HV
 
-from platypus import NSGAII, NSGAIII, DTLZ2, Hypervolume, experiment, calculate, display
 
 import matplotlib.pyplot as plt
 
@@ -68,11 +67,8 @@ plt.ylim([-1, 10])
 
 # Performance Indicators
 function = np.array(function)
-# igd = IGD(zdt1.pareto_front())
-# print("IGD", igd(function))
+igd = IGD(zdt1.pareto_front())
+print("IGD", igd(function))
 
-hv = HV(zdt1.pareto_front())
-print("HV", hv(function))
-
-# hyp = Hypervolume(minimum=[0, 0], maximum=[11, 11])
-# print(hyp.calculate(function))
+hv = HV(ref_point=function[0])
+print("HV", hv(zdt1.pareto_front()))
