@@ -1,4 +1,5 @@
 import numpy as np
+import statistics
 
 from problems.zdt1 import ZDT1
 from problems.zdt2 import ZDT2
@@ -16,6 +17,11 @@ from pymoo.indicators.hv import HV
 import matplotlib.pyplot as plt
 
 
+def get_mean(list):
+    value = 0
+    for i in list:
+        value = value + i
+    return value/len(list)
 
 """ Definition of parameters used for NSGAII
 
@@ -54,21 +60,28 @@ for i in nsgaii.evolveNSGAII(population):
         function.append(j)
 
 
+# Normalize function [0,1]
+function = np.array(function)
+f = (function - np.min(function))/(np.max(function)-np.min(function))
+
+
 # Plotting
-function1 = [i[0] for i in function]
-function2 = [i[1] for i in function]
+f1 = [i[0] for i in function]
+f2 = [i[1] for i in function]
 plt.xlabel('Function 1', fontsize=15)
 plt.ylabel('Function 2', fontsize=15)
-plt.plot(function1, function2, 'bo')
+plt.plot(f1, f2, 'bo')
 plt.plot(x, y, 'ro')
 plt.xlim([0, 1])
 plt.ylim([-1, 10])
 #plt.show()
 
 # Performance Indicators
-function = np.array(function)
-igd = IGD(zdt1.pareto_front())
-print("IGD", igd(function))
 
-hv = HV(ref_point=function[0])
-print("HV", hv(zdt1.pareto_front()))
+f_mean = get_mean(f)
+
+migd = IGD(zdt1.pareto_front())
+print("MIGD", migd(f_mean))
+
+mhv = HV(f_mean)
+print("MHV", mhv(zdt1.pareto_front()))
