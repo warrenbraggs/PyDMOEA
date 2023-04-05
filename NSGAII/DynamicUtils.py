@@ -37,11 +37,9 @@ class DynamicUtils:
 		pop2: list
 		"""
 
-		#if ((pop1[i] > pop1[j] and pop2[i] > pop2[j]) or (pop1[i] >= pop1[j] and pop2[i] > pop2[j]) or (pop1[i] > pop1[j] and pop2[i] >= pop2[j])):		
 		return (True and pop1 <= pop2) and (False or pop1 < pop2)
 
 	# Generation of random population used for dynamic optimisation
-    
 	def generate_random_solutions(self):
 		"""TODO: add documentation """
 		solutions = []
@@ -49,7 +47,6 @@ class DynamicUtils:
 		for i in range(self.n_individuals):
 			temp = []
 			for j in range(self.n_variables):
-				#variable_values = round(random.uniform(min, max),2)
 				variable_values = random.uniform(self.min, self.max)
 				temp.append(variable_values)
 			solutions.append(temp)
@@ -69,7 +66,6 @@ class DynamicUtils:
 		count = [0] * len(population)	# domination counter n
 
 		pareto_front = [[]]
-		pareto_front_obj = [[]]
 		rank = [0] * len(population)
 
 
@@ -89,7 +85,6 @@ class DynamicUtils:
 
 		i = 0
 		while len(pareto_front[i]) > 0:
-			store_temp_fronts_obj = []		# representing Q
 			store_temp_fronts = []		# representing Q
 			for p in range(len(pareto_front[i])):
 				for q in range(0, len(dominated_solutions)):
@@ -103,22 +98,6 @@ class DynamicUtils:
 
 		return pareto_front
 
-
-	def check_layers(self, front):
-		newPopulation = []
-		
-		for i in range(len(front)):
-			if front[i][0] + len(newPopulation) <= self.n_individuals:
-				#newPopulation.append(front[i][0])
-				print('Hello')
-			else:
-				print('Here')
-				self.crowding_distance(front)
-				break
-		
-		return newPopulation
-
-
 	def crowding_distance(self, pareto_front):
 		if len(pareto_front) > 0:
 			l = len(pareto_front)
@@ -126,12 +105,10 @@ class DynamicUtils:
 
 			for j in range(l):
 				pareto_front.sort()
-
 				distance[0] = distance[l-1] = 123456789
 
 				for i in range(1,l-1):
 					distance[i] = distance[i]+ (pareto_front[i+1][0] - pareto_front[i-1][0])/(max(pareto_front[i])-min(pareto_front[i]))
-
 
 			return distance
 
@@ -157,24 +134,7 @@ class DynamicUtils:
 			parent2[i] = 0.5 * ((1 - beta) * x1 + (1 + beta) * x2)
 
 		return [parent1, parent2]
-
-		# child1 = []
-		# child2 = []
-
-		# for i in range(2):
-		# 	#print(parent1[i], parent2[i])
-		# 	u = random.random()
-		# 	if u <= 0.5:
-		# 		beta = (2 * u) ** (1/(n_c + 1))
-		# 	else:
-		# 		beta = (1/(2 * (1 - u))) ** (1/(n_c + 1))
-
-		# 	child1.append(0.5 * ((1 + beta) * parent1[i] + (1 - beta) * parent2[i]))
-		# 	child2.append(0.5 * ((1 - beta) * parent1[i] + (1 + beta) * parent2[i]))
-
-		
-		# return [child1, child2]
-
+	
 
 	def polynomial_mutation(self, population, eta):
 		# https://www.sciencedirect.com/science/article/abs/pii/S0020025515007276
@@ -199,6 +159,7 @@ class DynamicUtils:
 
 		return population
 	
+
 	def create_child(self, population):
 		child = []
 		
@@ -216,14 +177,43 @@ class DynamicUtils:
 			temp_child[1] = self.polynomial_mutation(temp_child[1], 200)
 
 
-			
 			# Init population + append children objectives to population objectives
 			self.evaluate_objective_values(temp_child,2)
 
 			child.append(temp_child)
 		
 		return child
+	
+	# The tournment selection implemented takes as input a list and determines the dominant among the others
+	def tournament_selection(self, population):			
+		tournament_size = self.n_variables	# randomly chosen
+		tournament = []
+		best_individual = []
 
+		""" 
+		Tournament selection takes five random individuals from the population and returns the best
+		"""
+		for i in range(2):
+			for j in range(tournament_size):
+				r = random.choice(population)
+				tournament.append(r)
+
+			best_individual.append(self.get_best(tournament))
+			tournament = []
+		
+		return best_individual
+	
+
+	def get_best(self, population):
+		best = population[0]
+
+		for i in range(1,len(population)):
+			if population[i] > best:
+				best = population[i]
+
+		return best
+
+###################################################################################################
 
 	def get_fitness(self):
 		return self.n_generations 
@@ -319,31 +309,4 @@ class DynamicUtils:
 					"""CALL: MUTATION"""
 
 
-	# The tournment selection implemented takes as input a list and determines the dominant among the others
-	def tournament_selection(self, population):			
-		tournament_size = self.n_variables	# randomly chosen
-		tournament = []
-		best_individual = []
-
-		""" 
-		Tournament selection takes five random individuals from the population and returns the best
-		"""
-		for i in range(2):
-			for j in range(tournament_size):
-				r = random.choice(population)
-				tournament.append(r)
-
-			best_individual.append(self.get_best(tournament))
-			tournament = []
-		
-		return best_individual
 	
-
-	def get_best(self, population):
-		best = population[0]
-
-		for i in range(1,len(population)):
-			if population[i] > best:
-				best = population[i]
-
-		return best

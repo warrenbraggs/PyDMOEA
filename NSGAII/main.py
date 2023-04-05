@@ -1,18 +1,14 @@
 import numpy as np
-import statistics
 
 from problems.zdt1 import ZDT1
 from problems.zdt2 import ZDT2
-from problems.zdt3 import ZDT3
+from pymoo.problems import get_problem
 
 from DynamicUtils import DynamicUtils
 from Evolution import Evolution
 
-from pymoo.problems import get_problem
-
 from pymoo.indicators.igd import IGD
 from pymoo.indicators.hv import HV
-
 
 import matplotlib.pyplot as plt
 
@@ -44,9 +40,9 @@ problem = ZDT1(n_variables)
 dynamic_evolution = DynamicUtils(problem, n_individuals, n_generations, n_variables, min, max)
 nsgaii = Evolution(problem, n_individuals, n_generations, n_variables, min, max)
 
-# Optimal Pareto Front for ZDT1
-zdt1 = get_problem("zdt1")
-x, y = zdt1.pareto_front().T
+# Optimal Pareto Front for a Test Problem
+pf = get_problem("zdt1")
+x, y = pf.pareto_front().T
 
 
 # Generation of the population and initialization
@@ -68,20 +64,20 @@ f = (function - np.min(function))/(np.max(function)-np.min(function))
 # Plotting
 f1 = [i[0] for i in function]
 f2 = [i[1] for i in function]
-plt.xlabel('Function 1', fontsize=15)
-plt.ylabel('Function 2', fontsize=15)
-plt.plot(f1, f2, 'bo')
-plt.plot(x, y, 'ro')
+
+plt.plot(x, y, 'ro', label='Pareto Front')
+plt.plot(f1, f2, 'bo', label='NSGAII')
+plt.legend(loc="upper left")
 plt.xlim([0, 1])
 plt.ylim([-1, 10])
-#plt.show()
+plt.show()
 
 # Performance Indicators
 
 f_mean = get_mean(f)
 
-migd = IGD(zdt1.pareto_front())
+migd = IGD(pf.pareto_front())
 print("MIGD", migd(f_mean))
 
 mhv = HV(f_mean)
-print("MHV", mhv(zdt1.pareto_front()))
+print("MHV", mhv(pf.pareto_front()))
