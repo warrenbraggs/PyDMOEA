@@ -1,6 +1,6 @@
 import random
 
-class DynamicUtils:
+class Utils:
 
 	def __init__(self, problem, n_individuals, n_generations, n_variables, min, max):
 		self.problem = problem
@@ -40,11 +40,11 @@ class DynamicUtils:
 		return (True and pop1 <= pop2) and (False or pop1 < pop2)
 
 	# Generation of random population used for dynamic optimisation
-	def generate_random_solutions(self):
+	def generate_random_solutions(self, n):
 		"""TODO: add documentation """
 		solutions = []
 		
-		for i in range(self.n_individuals):
+		for i in range(n):
 			temp = []
 			for j in range(self.n_variables):
 				variable_values = random.uniform(self.min, self.max)
@@ -59,6 +59,26 @@ class DynamicUtils:
 			temp = [f1, f2]
 			self.objective_values.append(temp)
 		return self.objective_values
+	
+
+	def calculate_objective_values(self, population, n):
+		temp_obj = []
+		for i in range(n):		
+			f1, f2 = self.problem.evaluate_objective_values(population[i])
+			temp_obj.append([f1,f2])
+		return temp_obj
+	
+
+	def replace_element(self, population:list, new_element, n):
+		
+		j = 0
+		for i in range(n):
+			r = random.randrange(len(population))
+			population.pop(r)
+			population.append(new_element[j])
+			j = j + 1
+
+		return population
 
 
 	def fast_non_dominated_sort(self, population):
