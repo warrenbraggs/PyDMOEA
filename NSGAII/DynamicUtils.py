@@ -193,7 +193,7 @@ class DynamicUtils:
 		""" 
 		Tournament selection takes five random individuals from the population and returns the best
 		"""
-		for i in range(2):
+		for i in range(3):
 			for j in range(tournament_size):
 				r = random.choice(population)
 				tournament.append(r)

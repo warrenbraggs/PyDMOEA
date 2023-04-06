@@ -29,9 +29,11 @@ class Evolution:
         """CREATION OF A CHILD"""
         child = self.genetic.create_child(population)
         """END"""
+
+        returned_population = None
                 
         for i in tqdm (range (self.n_generations)):
-            population.extend(child)
+            population.extend(child)            
             pareto = self.genetic.fast_non_dominated_sort(population)
             
             newPopulation = []
@@ -44,7 +46,7 @@ class Evolution:
             #     else:
             #         break
 
-            for j in range(len(pareto)-1):
+            for j in range(len(pareto)):
                 if pareto[j]:
                     if len(newPopulation) + len(pareto[j]) < self.n_individuals:
                         distance[j] = self.genetic.crowding_distance(pareto[j])
@@ -54,24 +56,22 @@ class Evolution:
 
 
             distance[j] = self.genetic.crowding_distance(pareto[j]) 
-            pareto[j].sort(key=lambda distance: distance, reverse=True) 
+            pareto[j].sort(key=lambda distance: distance, reverse=False) 
             
             newPopulation.extend(pareto[j][0:self.n_variables - len(newPopulation)])
 
             returned_pareto = pareto
             population = newPopulation
 
-            pareto = self.genetic.fast_non_dominated_sort(population)
-            for p in range(len(pareto)-1):
-                distance[p] = self.genetic.crowding_distance(pareto[p])
+            # pareto = self.genetic.fast_non_dominated_sort(population)
+            # for p in range(len(pareto)):
+            #    distance[p] = self.genetic.crowding_distance(pareto[p])
             
             """CREATION OF A CHILD"""
             child = self.genetic.create_child(population)
             """END"""            
         
-        
-
-        return pareto
+        return returned_pareto
 
         
     def evolveCOEA(self, population):

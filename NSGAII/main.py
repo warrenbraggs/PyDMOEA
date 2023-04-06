@@ -2,6 +2,9 @@ import numpy as np
 
 from problems.zdt1 import ZDT1
 from problems.zdt2 import ZDT2
+from problems.zdt3 import ZDT3  # not working
+from problems.zdt4 import ZDT4  # not working
+from problems.zdt6 import ZDT6  # not working
 from pymoo.problems import get_problem
 
 from DynamicUtils import DynamicUtils
@@ -55,11 +58,8 @@ for i in nsgaii.evolveNSGAII(population):
     for j in i:
         function.append(j)
 
-
 # Normalize function [0,1]
-function = np.array(function)
 f = (function - np.min(function))/(np.max(function)-np.min(function))
-
 
 # Plotting
 f1 = [i[0] for i in function]
@@ -69,11 +69,10 @@ plt.plot(x, y, 'ro', label='Pareto Front')
 plt.plot(f1, f2, 'bo', label='NSGAII')
 plt.legend(loc="upper left")
 plt.xlim([0, 1])
-plt.ylim([-1, 10])
+plt.ylim([-1, 12])
 plt.show()
 
 # Performance Indicators
-
 f_mean = get_mean(f)
 
 migd = IGD(pf.pareto_front())

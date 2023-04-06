@@ -1,7 +1,5 @@
 from abc import abstractmethod, ABC
 
-import random 
-
 class Problem:
     """TODO: add documentation """
     def __init__(self, n_variables):
