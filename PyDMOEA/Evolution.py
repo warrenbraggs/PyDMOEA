@@ -24,30 +24,24 @@ class Evolution:
     def evolveNSGAII(self, population:list):
         self.genetic.evaluate_objective_values(population,self.n_individuals)
         pareto = self.genetic.fast_non_dominated_sort(population)
+
         
-        distance = []
+        distance = [0] * len(pareto)
+        
         for i in range(len(pareto)):
-            distance.append(self.genetic.crowding_distance(pareto[i]))
-        
+            distance[i] = self.genetic.crowding_distance(pareto[i])
+
+
         """CREATION OF A CHILD"""
         child = self.genetic.create_child(population)
         """END"""
-
-        returned_population = None
                 
         for i in tqdm (range (self.n_generations)):
             population.extend(child)            
             pareto = self.genetic.fast_non_dominated_sort(population)
-            
-            newPopulation = []
+            distance = [0] * len(pareto)
 
-            # while len(newPopulation) + len(pareto[index]) < self.n_individuals:
-            #     self.genetic.crowding_distance(pareto[index])
-            #     newPopulation.extend(pareto[index])
-            #     if pareto[index]:
-            #         index += 1
-            #     else:
-            #         break
+            newPopulation = []
 
             for j in range(len(pareto)):
                 if pareto[j]:
@@ -56,19 +50,20 @@ class Evolution:
                         newPopulation.extend(pareto[j])
                 else:
                     break
-
+        
 
             distance[j] = self.genetic.crowding_distance(pareto[j]) 
             pareto[j].sort(key=lambda distance: distance, reverse=False) 
             
-            newPopulation.extend(pareto[j][0:self.n_variables - len(newPopulation)])
+            #newPopulation.extend(pareto[j])
 
             returned_pareto = pareto
             population = newPopulation
 
-            # pareto = self.genetic.fast_non_dominated_sort(population)
-            # for p in range(len(pareto)):
-            #    distance[p] = self.genetic.crowding_distance(pareto[p])
+            pareto = self.genetic.fast_non_dominated_sort(population)
+            distance = [0] * len(pareto)
+            for p in range(len(pareto)):
+               distance[p] = self.genetic.crowding_distance(pareto[p])
             
             """CREATION OF A CHILD"""
             child = self.genetic.create_child(population)

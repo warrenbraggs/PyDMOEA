@@ -120,14 +120,15 @@ class Utils:
 
 	def crowding_distance(self, pareto_front):
 		if len(pareto_front) > 0:
-			l = len(pareto_front)
-			distance = [0] * l
+			
+			distance = [0 for i in range(0,len(pareto_front))]
 
-			for j in range(l):
-				pareto_front.sort()
-				distance[0] = distance[l-1] = 123456789
+			for j in range(len(pareto_front)):
+				pareto_front[j].sort()
+				distance[0] = 123456789
+				distance[len(pareto_front)-1] = 123456789
 
-				for i in range(1,l-1):
+				for i in range(1,len(pareto_front)-1):
 					distance[i] = distance[i]+ (pareto_front[i+1][0] - pareto_front[i-1][0])/(max(pareto_front[i])-min(pareto_front[i]))
 
 			return distance
@@ -250,6 +251,34 @@ class Utils:
 	def split_populations(self, population, n):
 		return list(population[i::n] for i in range(n))
 	
+
+	def cooperative_competitive(self, population, n):
+
+		# Split the population in n parts using the method
+		subpopulations = self.split_populations(population, n)
+
+		# Get the fitness value
+		n_fitness = self.get_fitness()
+	
+		for i in range(self.n_generations):
+			if i >= n_fitness:
+				self.cooperative_process()
+				"""TODO: Update and Return Archive"""
+				
+			else:
+				r = random.randint(0,1)
+				if r == 0:
+					newPopulation = self.cooperative_process()
+					"""CALL: Binary Tournament"""
+					"""CALL: CROSSOVER"""
+					"""CALL: MUTATION"""
+				else:
+					self.competitive_process(subpopulations, n)
+					"""TODO: Shuffle subpopulation individuals"""
+					"""CALL: CROSSOVER"""
+					"""CALL: MUTATION"""
+
+	
 	def cooperative_process(self, population, n):	
 		# Implementation of the cooperative process
 		# Binary Tournament 
@@ -302,31 +331,6 @@ class Utils:
 			self.cooperative_process()
 			"""TODO: need to implement the winning subpopulation Sk"""
 			"""TODO:  Si = Sk """
-
-	def cooperative_competitive(self, population, n):
-
-		# Split the population in n parts using the method
-		subpopulations = self.split_populations(population, n)
-
-		# Get the fitness value
-		n_fitness = self.get_fitness()
-	
-		for i in range(self.n_generations):
-			if i >= n_fitness:
-				self.cooperative_process()
-				"""TODO: Update and Return Archive"""
-			else:
-				r = random.randint(0,1)
-				if r == 0:
-					newPopulation = self.cooperative_process()
-					"""CALL: Binary Tournament"""
-					"""CALL: CROSSOVER"""
-					"""CALL: MUTATION"""
-				else:
-					self.competitive_process(subpopulations, n)
-					"""TODO: Shuffle subpopulation individuals"""
-					"""CALL: CROSSOVER"""
-					"""CALL: MUTATION"""
 
 
 	
