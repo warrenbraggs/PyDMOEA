@@ -17,7 +17,11 @@ class ZDT4(Problem):
         return x[0]
 
     def f2(self, x): 
-        sigma = sum(x ** 2 - 10 * math.cos(4 * math.pi * x) for x in x[1:])
-        g = 1 + 10*(self.n_variables - 1) + sigma
-        h = 1 - math.sqrt(self.f1(x)/g)
-        return g * h
+        try:
+            sigma = sum((x ** 2 - 10 * math.cos(4 * math.pi * x)) for x in x[1:])
+            g = 1 + 10*(self.n_variables - 1) + sigma
+            h = 1 - math.sqrt(self.f1(x)/g)
+            return g * h
+        except:
+            return
+    
