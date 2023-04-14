@@ -1,6 +1,7 @@
 from Utils import NSGAUtils, MOEADUtils, COEAUtils
 from tqdm import tqdm
 import random
+import numpy as np
 
 class Evolution:
 
@@ -74,7 +75,11 @@ class Evolution:
             child = self.nsga.create_child(population)
             """END"""            
         
-        return returned_pareto
+        function = []
+        for i in returned_pareto:
+            for j in i:
+                function.append(j)
+        return function
     
 
     def evolveDNSGAIIA(self, population:list, n_solutions):
