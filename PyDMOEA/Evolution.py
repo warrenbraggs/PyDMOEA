@@ -76,9 +76,21 @@ class Evolution:
             """END"""            
         
         function = []
+        y = []
         for i in returned_pareto:
             for j in i:
+                #j[1] = j[1]/6
                 function.append(j)
+                y.append(j[1])
+
+        max_v = max(y) 
+        min_v = min(y)         
+        
+        for i in range(len(function)):
+            #function[i][1] /= (max_v - min_v) / min_v
+            function[i][1] = (function[i][1] - min_v) * (self.n_variables/3/ (max_v - min_v))
+
+
         return function
     
 
@@ -99,7 +111,6 @@ class Evolution:
             
             # Fast Changing environment
             if i%10 == 0:
-                print('Hello')
                 temp_population = self.nsga.generate_random_solutions(n_solutions)
                 obj = self.nsga.calculate_objective_values(temp_population, n_solutions)
                 population = self.nsga.replace_element(population, obj, n_solutions)
@@ -139,8 +150,6 @@ class Evolution:
         # Split the population in n parts using the method
         subpopulations = self.coea.split_populations(population, n_splits)
 
-        print(subpopulations, '\n')
-
         # Get the fitness value
         n_fitness = self.coea.get_fitness()
 
@@ -153,21 +162,29 @@ class Evolution:
                     newPopulation.extend(self.coea.competitive_process(subpopulations))
                     # Shuffle subpopulation individuals"""
                     random.shuffle(newPopulation)
-                    # """CALL: CROSSOVER"""
-                    # """CALL: MUTATION"""
-                    child = self.coea.create_child(newPopulation)
+                    # Crossover & Mutation
+                    #child = self.coea.create_child(newPopulation)
+                    parent1 = random.choice(newPopulation)
+                    parent2 = random.choice(newPopulation)
+                    child = self.coea.sbx(parent1, parent2, 1)
+                    child[0] = self.coea.polynomial_mutation(child[0], 1)
+                    child[1] = self.coea.polynomial_mutation(child[1], 1)
+                    self.coea.evaluate_objective_values(child,2)
                     newPopulation.extend(child)
                 else:					
-                    # newPopulation.extend(self.cooperative_process(subpopulations)) 			
-                    # child = self.create_child(newPopulation)
-                    # newPopulation.extend(child)
-                    print('Hello')
+                    newPopulation.extend(self.coea.cooperative_process(subpopulations)) 			
+                    child = self.coea.create_child(newPopulation)
+                    newPopulation.extend(child)
             else:
                 break
 
         #Update and Return Archive
-        #return self.cooperative_process(newPopulation)
-        return newPopulation
+        #newPopulation = self.coea.cooperative_process(newPopulation)
+        #self.coea.evaluate_objective_values(newPopulation)
+
+        return self.coea.objective_values
+        
+    
 
 
     def evolveMOEAD(self, population):
