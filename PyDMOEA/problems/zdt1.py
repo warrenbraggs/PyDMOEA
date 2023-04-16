@@ -24,3 +24,4 @@ class ZDT1(Problem):
             return g * h
         except:
             return
+        
