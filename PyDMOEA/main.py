@@ -35,7 +35,7 @@ max: int
 """
 n_individuals = 100 #100
 n_generations = 200 #200
-n_variables = 30    #30
+n_variables = 30   #30
 min = 0
 max = 1
 

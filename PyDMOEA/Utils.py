@@ -124,12 +124,15 @@ class NSGAUtils:
 			distance = [0 for i in range(0,len(pareto_front))]
 
 			for j in range(len(pareto_front)):
-				pareto_front[j].sort()
-				distance[0] = 123456789
-				distance[len(pareto_front)-1] = 123456789
+				try:
+					pareto_front[j].sort()
+					distance[0] = 123456789
+					distance[len(pareto_front)-1] = 123456789
 
-				for i in range(1,len(pareto_front)-1):
-					distance[i] = distance[i]+ (pareto_front[i+1][0] - pareto_front[i-1][0])/(max(pareto_front[i])-min(pareto_front[i]))
+					for i in range(1,len(pareto_front)-1):
+						distance[i] = distance[i]+ (pareto_front[i+1][0] - pareto_front[i-1][0])/(max(pareto_front[i])-min(pareto_front[i]))
+				except:
+					return						
 
 			return distance
 
@@ -191,15 +194,15 @@ class NSGAUtils:
 			while parent1 == parent2:
 				parent2 = self.tournament_selection(population)
 					
-			temp_child = self.sbx(parent1[0], parent2[0], 200)
+			temp_child = self.sbx(parent1[0], parent2[0], 100)
 			#temp_child[0] = self.genetic.polynomial_mutation(temp_child[0], 20, 1/self.n_variables)
 			#temp_child[1] =self.genetic.polynomial_mutation(temp_child[1], 20, 1/self.n_variables)
-			temp_child[0] = self.polynomial_mutation(temp_child[0], 200)
-			temp_child[1] = self.polynomial_mutation(temp_child[1], 200)
+			temp_child[0] = self.polynomial_mutation(temp_child[0], 100)
+			temp_child[1] = self.polynomial_mutation(temp_child[1], 100)
 
 
 			# Init population + append children objectives to population objectives
-			self.evaluate_objective_values(temp_child,2)
+			self.evaluate_objective_values(temp_child,len(temp_child))
 
 			child.append(temp_child)
 		
@@ -355,15 +358,13 @@ class COEAUtils:
 			parent2 = self.tournament_selection(population)
 		
 				
-		temp_child = self.sbx(parent1[0], parent2[0], 1)
-		#temp_child[0] = self.genetic.polynomial_mutation(temp_child[0], 20, 1/self.n_variables)
-		#temp_child[1] =self.genetic.polynomial_mutation(temp_child[1], 20, 1/self.n_variables)
-		temp_child[0] = self.polynomial_mutation(temp_child[0], 1)
-		temp_child[1] = self.polynomial_mutation(temp_child[1], 1)
+		temp_child = self.sbx(parent1[0], parent2[0], 10)
+		temp_child[0] = self.polynomial_mutation(temp_child[0], 10)
+		temp_child[1] = self.polynomial_mutation(temp_child[1], 10)
 
 
 		# Init population + append children objectives to population objectives
-		self.evaluate_objective_values(temp_child,2)
+		self.evaluate_objective_values(temp_child,len(temp_child))
 	
 		
 		return temp_child
@@ -377,50 +378,14 @@ class COEAUtils:
 		return list(population[i::n] for i in range(n))
 	
 
-	def cooperative_competitive(self, population, n):	
-		# Split the population in n parts using the method
-		subpopulations = self.split_populations(population, n)
-
-		print(subpopulations, '\n')
-
-		# Get the fitness value
-		n_fitness = self.get_fitness()
-
-		newPopulation = []
-	
-		for i in range(n_fitness):
-			if len(newPopulation) < self.n_individuals:
-				r = random.randint(0,1)
-				if r == 0 or i % 10 == 0:
-					newPopulation.extend(self.competitive_process(subpopulations))
-					# Shuffle subpopulation individuals"""
-					random.shuffle(newPopulation)
-					# """CALL: CROSSOVER"""
-					# """CALL: MUTATION"""
-					child = self.create_child(newPopulation)
-					newPopulation.extend(child)
-				else:					
-					# newPopulation.extend(self.cooperative_process(subpopulations)) 			
-					# child = self.create_child(newPopulation)
-					# newPopulation.extend(child)
-					print('Hello')
-			else:
-				break
-
-		#Update and Return Archive
-		#return self.cooperative_process(newPopulation)
-		return newPopulation
-		
-
-
 	def cooperative_process(self, population):	
 		combined_solution = []
 
-		index = random.randint(0, self.n_variables)
+		index = random.randint(0, len(population)-1)
 		for i in range(len(population)):
 			combined_solution.append(population[i][index])
 		
-		self.evaluate_objective_values(combined_solution, 2)
+		combined_solution = self.evaluate_objective_values(combined_solution, 2)
 
 		self.archive.extend(combined_solution)
 		
@@ -443,22 +408,23 @@ class COEAUtils:
 
 		for i in range(len(population)):
 			# Insert the representative of the subpopulation in the competition pool. In this case the representative is a random index
-			index = random.randint(0, self.n_variables)
+			index = random.randint(0, n-1)
 			competition_pool.append(population[i][index])
 			
 
 			if n > len(population[i]):
-				index = random.randint(0, self.n_variables)
+				index = random.randint(0, n)
 				competition_pool.extend(population[i][index])
 			elif n <= len(population[i]):
 				elem = random.choice(population)
-				index = random.randint(0, self.n_variables)
+				index = random.randint(0, n-1)
 				competition_pool.extend([elem[index]])
 
 			"""TODO: call cooperative process"""
 			"""TODO: need to implement the winning subpopulation Sk"""
 			"""TODO:  Si = Sk """
-
+		
+		#self.evaluate_objective_values(competition_pool, 2)
 		return competition_pool
 
 

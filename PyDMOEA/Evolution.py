@@ -79,16 +79,15 @@ class Evolution:
         y = []
         for i in returned_pareto:
             for j in i:
-                #j[1] = j[1]/6
                 function.append(j)
                 y.append(j[1])
 
         max_v = max(y) 
         min_v = min(y)         
         
+        # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
         for i in range(len(function)):
-            #function[i][1] /= (max_v - min_v) / min_v
-            function[i][1] = (function[i][1] - min_v) * (self.n_variables/3/ (max_v - min_v))
+            function[i][1] = (function[i][1] - min_v) * (self.n_variables/3/(max_v - min_v))
 
 
         return function
@@ -150,6 +149,7 @@ class Evolution:
         # Split the population in n parts using the method
         subpopulations = self.coea.split_populations(population, n_splits)
 
+
         # Get the fitness value
         n_fitness = self.coea.get_fitness()
 
@@ -159,19 +159,19 @@ class Evolution:
             if len(newPopulation) < self.n_individuals:
                 r = random.randint(0,1)
                 if r == 0 or i % 10 == 0:
-                    newPopulation.extend(self.coea.competitive_process(subpopulations))
+                    temp = self.coea.competitive_process(subpopulations)
+                    newPopulation.extend(self.coea.evaluate_objective_values(temp, len(temp)))
                     # Shuffle subpopulation individuals"""
                     random.shuffle(newPopulation)
                     # Crossover & Mutation
-                    #child = self.coea.create_child(newPopulation)
                     parent1 = random.choice(newPopulation)
                     parent2 = random.choice(newPopulation)
                     child = self.coea.sbx(parent1, parent2, 1)
                     child[0] = self.coea.polynomial_mutation(child[0], 1)
                     child[1] = self.coea.polynomial_mutation(child[1], 1)
-                    self.coea.evaluate_objective_values(child,2)
+                    child = self.coea.evaluate_objective_values(child,len(child))
                     newPopulation.extend(child)
-                else:					
+                else:		
                     newPopulation.extend(self.coea.cooperative_process(subpopulations)) 			
                     child = self.coea.create_child(newPopulation)
                     newPopulation.extend(child)
@@ -179,13 +179,31 @@ class Evolution:
                 break
 
         #Update and Return Archive
-        #newPopulation = self.coea.cooperative_process(newPopulation)
-        #self.coea.evaluate_objective_values(newPopulation)
+        #newPopulation.extend(self.coea.cooperative_process(newPopulation))
+        #return self.coea.evaluate_objective_values(newPopulation, len(newPopulation))
 
-        return self.coea.objective_values
+        
+        # Working
+        #return self.coea.objective_values
+
+
+        function = []
+        y = []
+        for i in range(len(self.coea.objective_values)):
+            function.append(self.coea.objective_values[i])
+            y.append(self.coea.objective_values[i][1])
+            
+        max_v = max(y) 
+        min_v = min(y)         
+        
+        # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
+        for i in range(len(function)):
+            function[i][1]/=5
+
+
+        return function
         
     
-
 
     def evolveMOEAD(self, population):
         self.moead.initilizeMOEAD(population)
