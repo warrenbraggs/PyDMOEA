@@ -35,18 +35,18 @@ max: int
 """
 n_individuals = 100 #100
 n_generations = 200 #200
-n_variables = 2    #2
+n_variables = 30    #30
 min = 0
 max = 1
 
 
 # Initialisation
-problem = ZDT1(n_variables)
+problem = ZDT2(n_variables)
 algorithm = COEAUtils(problem, n_individuals, n_generations, n_variables, min, max)
 evolution = Evolution(problem, n_individuals, n_generations, n_variables, min, max)
 
 # Optimal Pareto Front for testing a problem
-pf = get_problem("zdt1")
+pf = get_problem("zdt2")
 x, y = pf.pareto_front().T
 
 
@@ -54,7 +54,7 @@ x, y = pf.pareto_front().T
 population = algorithm.generate_random_solutions(n_individuals)
 
 # Evolution of the algorith given the problem
-function = evolution.evolveCOEA(population,10)
+function = evolution.evolveCOEA(population, 10)
 
 
 # Performance Indicators
@@ -62,7 +62,7 @@ function = np.array(function)
 function_mean_value = get_mean(function)
 
 migd = IGD(pf.pareto_front())
-print("MIGD", migd(function_mean_value)/np.prod(function_mean_value))
+print("MIGD", migd(function_mean_value))
 mhv = HV(function_mean_value)
 print("MHV", mhv(pf.pareto_front())/np.prod(function_mean_value))
 
@@ -75,5 +75,5 @@ plt.plot(x, y, 'ro', label='Pareto Front')
 plt.plot(f1, f2, 'bo', label='NSGAII')
 plt.legend(loc="upper right")
 plt.xlim([0, 1])
-plt.ylim([-1, 10])
+plt.ylim([-1, 7])
 plt.show()
