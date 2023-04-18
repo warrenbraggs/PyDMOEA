@@ -1,4 +1,3 @@
-import math
 from Problem import Problem
 
 class BNH(Problem):
@@ -10,8 +9,6 @@ class BNH(Problem):
     def evaluate_objective_values(self, elements):
         f1 = self.f1(elements)
         f2 = self.f2(elements)
-        c1 = self.c1(elements)
-        c2 = self.c2(elements)
 
         return f1, f2
 
