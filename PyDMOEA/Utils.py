@@ -69,6 +69,14 @@ class NSGAUtils:
 			temp_obj.append([f1,f2])
 		return temp_obj
 	
+	""" Return a list with new random solutions
+	Parameters:
+	-----------
+	population: list
+	new_element: list
+	n: frequency expressed in integer
+	
+	"""
 
 	def replace_element(self, population:list, new_element, n):
 		
@@ -80,7 +88,23 @@ class NSGAUtils:
 			j = j + 1
 
 		return population
+	
+	""" Return a list with new random solutions already mutated
+	Parameters:
+	-----------
+	population: list
+	children: list
+	n: int
+	
+	"""
 
+	def replace_child(self, population:list, children, n):
+		random.shuffle(children)
+		for i in range(n):
+			child = random.randrange(len(population))
+			population.pop(child)
+			population.append(children[i])
+		return population
 
 	def fast_non_dominated_sort(self, population):
 		dominated_solutions = [0] * len(population)	# Dominated solutions S

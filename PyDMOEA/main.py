@@ -7,11 +7,12 @@ from Evolution import Evolution
 
 from problems.zdt1 import ZDT1
 from problems.zdt2 import ZDT2
-from problems.zdt3 import ZDT3  # not working
-from problems.zdt4 import ZDT4  # not working
-from problems.zdt6 import ZDT6  # not working
-from problems.bnh import BNH    # need to improve MHV
+from problems.zdt4 import ZDT4  
+from problems.bnh import BNH    # not working
+from problems.df1 import DF1
+from problems.df2 import DF2
 from pymoo.problems import get_problem
+
 
 from pymoo.indicators.igd import IGD
 from pymoo.indicators.hv import HV
@@ -19,7 +20,7 @@ from pymoo.indicators.hv import HV
 
 def get_mean(list):
     value = 0
-    for i in list:
+    for i in list:        
         value = value + i
     return value/len(list)
 
@@ -35,26 +36,27 @@ max: int
 """
 n_individuals = 100 #100
 n_generations = 200 #200
-n_variables = 30   #30
+n_variables = 2   #30
 min = 0
 max = 1
 
 
 # Initialisation
-problem = ZDT2(n_variables)
-algorithm = COEAUtils(problem, n_individuals, n_generations, n_variables, min, max)
+problem = DF2(n_generations)
+algorithm = NSGAUtils(problem, n_individuals, n_generations, n_variables, min, max)
 evolution = Evolution(problem, n_individuals, n_generations, n_variables, min, max)
 
 # Optimal Pareto Front for testing a problem
-pf = get_problem("zdt2")
+pf = get_problem("df2")
 x, y = pf.pareto_front().T
+
 
 
 # Generation of the population and initialization
 population = algorithm.generate_random_solutions(n_individuals)
 
 # Evolution of the algorith given the problem
-function = evolution.evolveCOEA(population, 10)
+function = evolution.evolveDNSGAIIB(population, 10)
 
 
 # Performance Indicators
@@ -62,7 +64,7 @@ function = np.array(function)
 function_mean_value = get_mean(function)
 
 migd = IGD(pf.pareto_front())
-print("MIGD", migd(function_mean_value))
+print("MIGD", migd(function_mean_value)/np.prod(function_mean_value))
 mhv = HV(function_mean_value)
 print("MHV", mhv(pf.pareto_front())/np.prod(function_mean_value))
 

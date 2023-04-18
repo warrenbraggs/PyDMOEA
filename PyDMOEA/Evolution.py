@@ -8,7 +8,7 @@ class Evolution:
     def __init__(self, problem, n_individuals, n_generations, n_variables, min, max):
         self.nsga = NSGAUtils(problem, n_individuals, n_generations, n_variables, min, max)
         self.moead = MOEADUtils(problem, n_individuals, n_generations, n_variables, min, max)
-        self.coea= COEAUtils(problem, n_individuals, n_generations, n_variables, min, max)
+        self.coea = COEAUtils(problem, n_individuals, n_generations, n_variables, min, max)
         self.n_individuals = n_individuals
         self.n_generations = n_generations
         self.n_variables = n_variables
@@ -165,6 +165,7 @@ class Evolution:
 
         return function
     
+
     def evolveDNSGAIIB(self, population:list, n_solutions):
         self.nsga.evaluate_objective_values(population,self.n_individuals)
         pareto = self.nsga.fast_non_dominated_sort(population)
@@ -173,26 +174,26 @@ class Evolution:
         for i in range(len(pareto)):
             distance.append(self.nsga.crowding_distance(pareto[i]))
         
+        children = []
         """CREATION OF A CHILD"""
         child = self.nsga.create_child(population)
+        children = child
         """END"""
 
                 
         for i in tqdm (range (self.n_generations)):
             
             # Fast Changing environment
-            if i%30 == 0:
-                new_child = child
-                population = self.nsga.replace_element(population, new_child, n_solutions)
-
-
-            population.extend(child)            
+            if i%10 == 0:
+                population = self.nsga.replace_child(population, children, n_solutions)
+            
+            population.extend(child)   
             pareto = self.nsga.fast_non_dominated_sort(population)
             
             newPopulation = []
 
 
-            for j in range(len(pareto)):
+            for j in range(len(pareto)-1):
                 if pareto[j]:
                     if len(newPopulation) + len(pareto[j]) < self.n_individuals:
                         distance[j] = self.nsga.crowding_distance(pareto[j])
@@ -213,7 +214,23 @@ class Evolution:
             child = self.nsga.create_child(population)
             """END"""            
         
-        return returned_pareto
+        function = []
+        y = []
+        for i in pareto:
+            for j in i:
+                if j[1] is not None:
+                    function.append(j)
+                    y.append(j[1])                    
+
+        max_v = max(y) 
+        min_v = min(y)         
+        
+        # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
+        for i in range(len(function)):
+            function[i][1] = (function[i][1] - min_v) * (2* self.n_variables/(max_v - min_v))
+
+
+        return function
 
         
     def evolveCOEA(self, population, n_splits):
@@ -274,6 +291,5 @@ class Evolution:
                 return function
         
     
-
     def evolveMOEAD(self, population):
         self.moead.initilizeMOEAD(population)
