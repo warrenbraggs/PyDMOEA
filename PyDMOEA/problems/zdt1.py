@@ -21,7 +21,7 @@ class ZDT1(Problem):
             sigma = sum(x[1:])
             g = 1 + sigma*9/(self.n_variables - 1)
             h = 1 - math.sqrt(self.f1(x)/g)
-            return g * h
+            return (g * h) / 2
         except:
             return
         

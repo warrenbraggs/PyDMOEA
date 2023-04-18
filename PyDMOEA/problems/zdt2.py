@@ -19,6 +19,6 @@ class ZDT2(Problem):
             sigma = sum(x[1:])
             g = 1 + sigma*9/(self.n_variables - 1)
             h = 1 - (self.f1(x)/g) ** 2
-            return g * h
+            return (g * h)/2
         except:
             return
