@@ -1,4 +1,5 @@
 import random
+import itertools as it
 
 class NSGAUtils:
 
@@ -189,11 +190,16 @@ class NSGAUtils:
 		
 		while len(child) < len(population):
 			parent1 = self.tournament_selection(population)
+			
+			while (parent1[0][1] is None): 
+				parent1 = self.tournament_selection(population)
 			parent2 = parent1
 
 			while parent1 == parent2:
 				parent2 = self.tournament_selection(population)
-					
+				while (parent2[0][1] is None): 
+					parent2 = self.tournament_selection(population)			
+			
 			temp_child = self.sbx(parent1[0], parent2[0], 100)
 			#temp_child[0] = self.genetic.polynomial_mutation(temp_child[0], 20, 1/self.n_variables)
 			#temp_child[1] =self.genetic.polynomial_mutation(temp_child[1], 20, 1/self.n_variables)
@@ -209,7 +215,7 @@ class NSGAUtils:
 		return child
 	
 	# The tournment selection implemented takes as input a list and determines the dominant among the others
-	def tournament_selection(self, population):			
+	def tournament_selection(self, population):		
 		tournament_size = self.n_variables	# randomly chosen
 		tournament = []
 		best_individual = []
@@ -217,19 +223,18 @@ class NSGAUtils:
 		""" 
 		Tournament selection takes five random individuals from the population and returns the best
 		"""
-		for i in range(3):
-			for j in range(tournament_size):
-				r = random.choice(population)
-				tournament.append(r)
+		for j in range(tournament_size):
+			individual = random.choice(population)
+			tournament.append(individual)
 
-			best_individual.append(self.get_best(tournament))
-			tournament = []
+		best_individual.append(self.get_best(tournament))		
 		
 		return best_individual
 	
 
 	def get_best(self, population):
 		best = population[0]
+		
 
 		for i in range(1,len(population)):
 			if population[i] > best:
@@ -358,16 +363,17 @@ class COEAUtils:
 			parent2 = self.tournament_selection(population)
 		
 				
-		temp_child = self.sbx(parent1[0], parent2[0], 10)
-		temp_child[0] = self.polynomial_mutation(temp_child[0], 10)
-		temp_child[1] = self.polynomial_mutation(temp_child[1], 10)
+		temp_child = self.sbx(parent1[0], parent2[0], 200)
+		temp_child[0] = self.polynomial_mutation(temp_child[0], 200)
+		temp_child[1] = self.polynomial_mutation(temp_child[1], 200)
 
 
 		# Init population + append children objectives to population objectives
-		self.evaluate_objective_values(temp_child,len(temp_child))
-	
+		child = self.evaluate_objective_values(temp_child,2)
+
+		print(child)
 		
-		return temp_child
+		return child
 
 
 	def get_fitness(self):
@@ -381,12 +387,15 @@ class COEAUtils:
 	def cooperative_process(self, population):	
 		combined_solution = []
 
-		index = random.randint(0, len(population)-1)
-		for i in range(len(population)):
+		length_population = len(population[-1])
+
+		index = random.randint(0, length_population-1)
+		for i in range(length_population):
 			combined_solution.append(population[i][index])
 		
-		combined_solution = self.evaluate_objective_values(combined_solution, 2)
+		combined_solution = self.evaluate_objective_values(combined_solution, len(combined_solution))
 
+		# Update Archive
 		self.archive.extend(combined_solution)
 		
 		#for j in range(len(Si)):
@@ -394,35 +403,36 @@ class COEAUtils:
 			#"""TODO: Calculate Niche count"""
 
 
-		#Return Archive
-		return self.archive
+		#Return the solution
+		return combined_solution
 
 
 	# Implementation of the competitive process
 	def competitive_process(self, population:list):
-		# Shuffle population --> Crossover --> Mutation
-
 		# Define the competition pool as an empty list
 		competition_pool = []
-		n = len(population)
 
-		for i in range(len(population)):
+		length_population = len(population[-1])
+		
+		for i in range(length_population):
 			# Insert the representative of the subpopulation in the competition pool. In this case the representative is a random index
-			index = random.randint(0, n-1)
+			index = random.randint(0, length_population-1)
 			competition_pool.append(population[i][index])
 			
 
-			if n > len(population[i]):
-				index = random.randint(0, n)
+			if length_population > len(population[i]):
+				index = random.randint(0, length_population)
 				competition_pool.extend(population[i][index])
-			elif n <= len(population[i]):
+			elif length_population <= len(population[i]):
 				elem = random.choice(population)
-				index = random.randint(0, n-1)
+				index = random.randint(0, length_population-1)
 				competition_pool.extend([elem[index]])
 
 			"""TODO: call cooperative process"""
 			"""TODO: need to implement the winning subpopulation Sk"""
 			"""TODO:  Si = Sk """
+
+			#self.cooperative_process(competition_pool)
 		
 		#self.evaluate_objective_values(competition_pool, 2)
 		return competition_pool
