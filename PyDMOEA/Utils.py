@@ -99,12 +99,12 @@ class NSGAUtils:
 	"""
 
 	def replace_child(self, population:list, children, n):
-		random.shuffle(children)
 		for i in range(n):
-			child = random.randrange(len(population))
-			population.pop(child)
-			population.append(children[i])
-		return population
+			child = random.choice(population)
+			index_child = population.index(child)
+			population.pop(index_child)
+			population.append(random.choice(children))
+		return population	
 
 	def fast_non_dominated_sort(self, population):
 		dominated_solutions = [0] * len(population)	# Dominated solutions S
