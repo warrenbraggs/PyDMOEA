@@ -183,18 +183,18 @@ class Evolution:
                 
         for i in tqdm (range (self.n_generations)):
             
-            # Fast Changing environment
-            if i%10 == 0:
+            # Fast Changing environmen
+            if i % 10 == 0:
                 population = self.nsga.replace_child(population, children, n_solutions)
-            
+                
             population.extend(child)   
             pareto = self.nsga.fast_non_dominated_sort(population)
             
             newPopulation = []
 
 
-            for j in range(len(pareto)-1):
-                if pareto[j]:
+            for j in range(-1, len(pareto)-1):
+                if pareto[j+1]:
                     if len(newPopulation) + len(pareto[j]) < self.n_individuals:
                         distance[j] = self.nsga.crowding_distance(pareto[j])
                         newPopulation.extend(pareto[j])
@@ -202,8 +202,8 @@ class Evolution:
                     break
 
 
-            distance[j] = self.nsga.crowding_distance(pareto[j]) 
-            pareto[j].sort(key=lambda distance: distance, reverse=False) 
+            distance[j-1] = self.nsga.crowding_distance(pareto[j]) 
+            pareto[j-1].sort(key=lambda distance: distance, reverse=False) 
             
             newPopulation.extend(pareto[j][0:self.n_variables - len(newPopulation)])
 
@@ -227,7 +227,8 @@ class Evolution:
         
         # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
         for i in range(len(function)):
-            function[i][1] = (function[i][1] - min_v) * (2* self.n_variables/(max_v - min_v))
+            function[i][0] = (function[i][0] - 0.4)
+            function[i][1] = (function[i][1] - min_v) * (2 * self.n_variables/(max_v - min_v))
 
 
         return function
