@@ -4,7 +4,7 @@ from Problem import Problem
 class DF2(Problem):
 
     def __init__(self, n_generations):
-        self.n_variables = 30
+        self.n_variables = 2
         self.n_generations = n_generations
 
 
@@ -25,8 +25,9 @@ class DF2(Problem):
         G = abs(v)
         r = int((self.n_variables - 1) * G)
         not_r = [k for k in range(self.n_variables) if k != r]
-
-        sigma = sum((x[:,not_r] - G) ** 2)
+        index = max(not_r)
+        
+        sigma = sum((x - G) ** 2 for x in x[:index])
         g = 1 + sigma
 
         return g * (1 - math.sqrt(self.f1(x)/g))

@@ -11,6 +11,8 @@ from problems.zdt4 import ZDT4
 from problems.bnh import BNH    # not working
 from problems.df1 import DF1
 from problems.df2 import DF2
+from problems.df3 import DF3
+from problems.df7 import DF7
 from pymoo.problems import get_problem
 
 
@@ -34,20 +36,24 @@ n_variables: int
 min: int
 max: int
 """
-n_individuals = 100 #100
-n_generations = 200 #200
-n_variables = 2   #30
+n_individuals = 100 
+n_generations = 200 
+n_variables = 2   
 min = 0
 max = 1
 
+# ZDT1, ZDT2 for STATIC: 30 objectives
+# ZDT4 for STATIC: 10 objectives
+# DF1, DF2, DF3, DF7, DF9 for DYNAMIC: 2 objectives
+
 
 # Initialisation
-problem = DF2(n_generations)
+problem = DF7(n_generations)
 algorithm = NSGAUtils(problem, n_individuals, n_generations, n_variables, min, max)
 evolution = Evolution(problem, n_individuals, n_generations, n_variables, min, max)
 
 # Optimal Pareto Front for testing a problem
-pf = get_problem("df2")
+pf = get_problem("df7")
 x, y = pf.pareto_front().T
 
 
