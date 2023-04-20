@@ -26,5 +26,7 @@ class DF7(Problem):
     
         return g * (self.f1(x) / (1 + self.n_generations))
 
+       
+
 
         
