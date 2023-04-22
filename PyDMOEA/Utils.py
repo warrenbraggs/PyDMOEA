@@ -513,12 +513,8 @@ class COEAUtils:
 				p.remove(elem)
 				newArchive.append(elem)
 		
-		
-		
 		if len(newArchive) > archive_limit:
 			worst = self.get_worst(newArchive)
 			newArchive.remove(worst)
-
-
 	
 		return newArchive
