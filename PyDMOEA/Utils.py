@@ -1,5 +1,4 @@
 import random
-import itertools as it
 
 class NSGAUtils:
 
@@ -523,51 +522,3 @@ class COEAUtils:
 
 	
 		return newArchive
-
-
-		
-
-	
-
-			
-
-
-###################################################################################################
-
-class MOEADUtils:
-
-	def __init__(self, problem, n_individuals, n_generations, n_variables, min, max):
-		self.problem = problem
-		self.n_individuals = n_individuals
-		self.n_generations = n_generations
-		self.n_variables = n_variables
-		self.objective_values = []
-		self.min = min
-		self.max = max
-
-	# Generation of random population used for dynamic optimisation
-	def generate_random_solutions(self, n):
-		"""TODO: add documentation """
-		solutions = []
-		
-		for i in range(n):
-			temp = []
-			for j in range(self.n_variables):
-				variable_values = random.uniform(self.min, self.max)
-				temp.append(variable_values)
-			solutions.append(temp)
-
-		return solutions
-	
-	def evaluate_objective_values(self, population, n):
-		for i in range(n):		
-			f1, f2 = self.problem.evaluate_objective_values(population[i])
-			temp = [f1, f2]
-			self.objective_values.append(temp)
-		return self.objective_values
-
-	def initilizeMOEAD(self, population):
-		self.objective_values = self.evaluate_objective_values(population, self.n_individuals)
-		print(self.objective_values)
-
-

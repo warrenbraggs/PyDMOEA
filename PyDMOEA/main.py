@@ -1,7 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
-from Utils import NSGAUtils, MOEADUtils, COEAUtils
+from Utils import NSGAUtils, COEAUtils
 from Evolution import Evolution
 
 from problems.zdt1 import ZDT1
@@ -18,7 +18,6 @@ from pymoo.problems import get_problem
 
 from pymoo.indicators.igd import IGD
 from pymoo.indicators.hv import HV
-from pymoo.visualization.scatter import Scatter
 
 
 

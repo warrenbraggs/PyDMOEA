@@ -1,4 +1,4 @@
-from Utils import NSGAUtils, MOEADUtils, COEAUtils
+from Utils import NSGAUtils, COEAUtils
 from tqdm import tqdm
 import random
 import numpy as np
@@ -7,7 +7,6 @@ class Evolution:
 
     def __init__(self, problem, n_individuals, n_generations, n_variables, min, max):
         self.nsga = NSGAUtils(problem, n_individuals, n_generations, n_variables, min, max)
-        self.moead = MOEADUtils(problem, n_individuals, n_generations, n_variables, min, max)
         self.coea = COEAUtils(problem, n_individuals, n_generations, n_variables, min, max)
         self.n_individuals = n_individuals
         self.n_generations = n_generations
@@ -26,9 +25,6 @@ class Evolution:
 
         if name == 'COEA':
             return self.evolveCOEA(population)
-        
-        if name == 'MOEAD':
-            return self.evolveMOEAD(population)
 
     """
 
@@ -408,7 +404,3 @@ class Evolution:
             
 
         return function
-
-
-    def evolveMOEAD(self, population):
-        self.moead.initilizeMOEAD(population)
