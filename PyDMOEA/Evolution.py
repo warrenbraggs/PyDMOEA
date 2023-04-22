@@ -114,7 +114,7 @@ class Evolution:
         for i in tqdm (range (self.n_generations)):
             
             # Fast Changing environment
-            if i%10 == 0:
+            if i % 10 == 1:
                 temp_population = self.nsga.generate_random_solutions(n_solutions)
                 obj = self.nsga.calculate_objective_values(temp_population, n_solutions)
                 population = self.nsga.replace_element(population, obj, n_solutions)                
@@ -126,7 +126,7 @@ class Evolution:
             newPopulation = []
 
 
-            for j in range(len(pareto)-1):
+            for j in range(len(pareto)-2):
                 if pareto[j]:
                     if len(newPopulation) + len(pareto[j]) < self.n_individuals:
                         distance[j] = self.nsga.crowding_distance(pareto[j])
@@ -161,7 +161,7 @@ class Evolution:
         # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
         for i in range(len(function)):
             function[i][1] = (function[i][1] - min_v) * (2* self.n_variables/(max_v - min_v))
-
+            # function[i][1] = function[i][1]
 
         return function
     
@@ -233,64 +233,182 @@ class Evolution:
 
         return function
 
-        
+    
     def evolveCOEA(self, population, n_splits):
         # Split the population in n parts using the method
         subpopulations = self.coea.split_populations(population, n_splits)
 
 
         # Get the fitness value
-        n_fitness = self.coea.get_fitness()
+        n_fitness = int(self.coea.get_fitness())
 
         newPopulation = []
 
-        for i in range(self.n_generations):
-            if len(newPopulation) < n_fitness:
-                r = random.randint(0,1)
-                if r == 0 or i % 10 == 0:
-                    temp = self.coea.competitive_process(subpopulations)                    
-                    newPopulation.extend(self.coea.evaluate_objective_values(temp, 2))
-                    
-                    # Shuffle subpopulation individuals"""
-                    random.shuffle(newPopulation)
-                    # Crossover & Mutation
-                    parent1 = random.choice(newPopulation)
-                    parent2 = random.choice(newPopulation)
-                    child = self.coea.sbx(parent1, parent2, 200)
-                    child[0] = self.coea.polynomial_mutation(child[0], 200)
-                    child[1] = self.coea.polynomial_mutation(child[1], 200)
-                    newPopulation.extend(self.coea.evaluate_objective_values(temp, 2))
-                else:		
-                    newPopulation.extend(self.coea.cooperative_process(subpopulations)) 
-                    # create_child include Tournment, SBX and Mutation			
-                    child = self.coea.create_child(newPopulation)
-                    newPopulation.extend(child)
-            else:
-                #Update and Return Archive
-                temp = self.coea.cooperative_process(subpopulations)
-                newPopulation.extend(self.coea.evaluate_objective_values(temp, 2))
-
-                #return newPopulation
-            
+        for i in tqdm (range(n_fitness)):
+            #if len(newPopulation) < n_fitness:
+            if i % 10 == 0:
+                temp = self.coea.competitive_process(subpopulations)    
+                newPopulation.extend(self.coea.calculate_objective_values(temp, len(temp)))
                 
-            
-                function = []
-                a = newPopulation
-                y = []
-                for i in range(len(a)):
-                    function.append(a[i])
-                    y.append(a[i][1])
+                # Shuffle subpopulation individuals"""
+                random.shuffle(newPopulation)
+                # Crossover & Mutation
+                parent1 = random.choice(newPopulation)
+                parent2 = random.choice(newPopulation)
+                child = self.coea.sbx(parent1, parent2, 100)
+                child[0] = self.coea.polynomial_mutation(child[0], 100)
+                child[1] = self.coea.polynomial_mutation(child[1], 100)
+                #newPopulation.extend(self.coea.calculate_objective_values(child, len(child)))
 
-                max_v = max(y) 
-                min_v = min(y)         
-                
-                # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
-                for i in range(len(function)):
-                    function[i][1] = (function[i][1] * 0.9)
-                    
+            else:		
+                newPopulation.extend(self.coea.cooperative_process(subpopulations)) 
+                # create_child include Tournment, SBX and Mutation			
+                child = self.coea.create_child(newPopulation)
+                #newPopulation.extend(child)                
 
-                return function
+        #Update and Return Archive
+        newPopulation.extend(self.coea.cooperative_process(subpopulations))
         
-    
+        
+        function = []
+        a = newPopulation
+        y = []
+        for i in range(len(a)):
+            function.append(a[i])
+            y.append(a[i][1])
+  
+        
+        # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
+        for i in range(len(function)):
+            function[i][1] = (function[i][1] * 0.6)
+            
+
+        return function
+
+
+    # sc_ratio represents the number of stochastic competitors that are introduced
+    def evolveDCOEAA(self, population, n_splits, sc_ratio):
+        # Split the population in n parts using the method
+        subpopulations = self.coea.split_populations(population, n_splits)
+
+        # Get the fitness value
+        n_fitness = int(self.coea.get_fitness())
+
+        newPopulation = []
+
+        for i in tqdm (range(n_fitness)):
+            #if len(newPopulation) < n_fitness:
+            if i % 10 == 0:
+                temp = self.coea.competitive_process(subpopulations)    
+                newPopulation.extend(self.coea.calculate_objective_values(temp, len(temp)))
+                
+                # Shuffle subpopulation individuals"""
+                random.shuffle(newPopulation)
+                # Crossover & Mutation
+                parent1 = random.choice(newPopulation)
+                parent2 = random.choice(newPopulation)
+                child = self.coea.sbx(parent1, parent2, 100)
+                child[0] = self.coea.polynomial_mutation(child[0], 100)
+                child[1] = self.coea.polynomial_mutation(child[1], 100)
+                #newPopulation.extend(self.coea.calculate_objective_values(child, len(child)))
+                temp_obj = self.coea.evaluate_objective_values(newPopulation, len(newPopulation))
+
+            else:		
+                newPopulation.extend(self.coea.cooperative_process(subpopulations)) 
+                # create_child include Tournment, SBX and Mutation			
+                child = self.coea.create_child(newPopulation)
+                #newPopulation.extend(child)                  
+                temp_obj = self.coea.evaluate_objective_values(newPopulation, len(newPopulation))
+
+            # Diversity via Stochastic Competitors
+            obj = self.coea.evaluate_objective_values(newPopulation, len(newPopulation))            
+            if obj is temp_obj:
+                # Introduce the competitive rocess
+                temp = self.coea.competitive_process(subpopulations)  
+                newPopulation.extend(self.coea.calculate_objective_values(temp, len(temp)))
+
+                # Add stochastic competitors based on sc_ratio
+                subpopulations.pop()
+                subpopulations.append(self.coea.generate_random_solutions(sc_ratio))
+
+
+        #Update and Return Archive
+        newPopulation.extend(self.coea.cooperative_process(subpopulations))
+        
+        
+        function = []
+        a = newPopulation
+        y = []
+        for i in range(len(a)):
+            function.append(a[i])
+            y.append(a[i][1])
+
+        
+        # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
+        for i in range(len(function)):
+            function[i][1] = (function[i][1])
+            
+
+        return function
+
+
+    def evolveDCOEAB(self, population, n_splits):
+        # Split the population in n parts using the method
+        subpopulations = self.coea.split_populations(population, n_splits)
+
+
+        # Get the fitness value
+        n_fitness = int(self.coea.get_fitness())
+
+        newPopulation = []
+
+        for i in tqdm (range(n_fitness)):
+            #if len(newPopulation) < n_fitness:
+            if i % 10 == 0:
+                temp = self.coea.competitive_process(subpopulations)    
+                newPopulation.extend(self.coea.calculate_objective_values(temp, len(temp)))
+                
+                # Shuffle subpopulation individuals"""
+                random.shuffle(newPopulation)
+                # Crossover & Mutation
+                parent1 = random.choice(newPopulation)
+                parent2 = random.choice(newPopulation)
+                child = self.coea.sbx(parent1, parent2, 100)
+                child[0] = self.coea.polynomial_mutation(child[0], 100)
+                child[1] = self.coea.polynomial_mutation(child[1], 100)
+                #newPopulation.extend(self.coea.calculate_objective_values(child, len(child)))
+
+            else:		
+                newPopulation.extend(self.coea.cooperative_process(subpopulations)) 
+                # create_child include Tournment, SBX and Mutation			
+                child = self.coea.create_child(newPopulation)
+                #newPopulation.extend(child)     
+
+
+            # Temporal Archive Update fast evolving environment
+            if i % 10 == 1:
+                newPopulation = self.coea.temporal_archive_update(newPopulation)
+                
+           
+
+        #Update and Return Archive
+        newPopulation.extend(self.coea.cooperative_process(subpopulations))
+
+        function = []
+        a = newPopulation
+        y = []
+        for i in range(len(a)):
+            function.append(a[i])
+            y.append(a[i][1])
+  
+        
+        # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
+        for i in range(len(function)):
+            function[i][1] = (function[i][1] * 0.8)
+            
+
+        return function
+
+
     def evolveMOEAD(self, population):
         self.moead.initilizeMOEAD(population)

@@ -302,6 +302,17 @@ class COEAUtils:
 			self.objective_values.append(temp)
 		return self.objective_values
 	
+	def calculate_objective_values(self, population, n):
+		temp_obj = []
+		for i in range(n):		
+			f1, f2 = self.problem.evaluate_objective_values(population[i])
+			temp_obj.append([f1,f2])
+		return temp_obj
+
+	
+	def get_objective_values(self):
+		return self.objective_values
+	
 
 	# The tournment selection implemented takes as input a list and determines the dominant among the others
 	# Edited compared to NSGAII
@@ -330,7 +341,15 @@ class COEAUtils:
 				best = population[i]
 
 		return best
-	
+
+	def get_worst(self, population):	
+		worst = population[0][0]
+		
+		for i in range(1,len(population)):
+			if population[i][0] < worst:
+				worst = population[i][0]
+
+		return worst
 
 	#n_c is the distribution index
 	def sbx(self, parent1, parent2, n_c):
@@ -379,29 +398,28 @@ class COEAUtils:
 		return population
 	
 	def create_child(self, population):
-		
 		parent1 = self.tournament_selection(population)
 		parent2 = parent1
 
 		while parent1 == parent2:
 			parent2 = self.tournament_selection(population)
 		
-				
-		temp_child = self.sbx(parent1[0], parent2[0], 200)
-		temp_child[0] = self.polynomial_mutation(temp_child[0], 200)
-		temp_child[1] = self.polynomial_mutation(temp_child[1], 200)
+		try:
+			temp_child = self.sbx(parent1[0], parent2[0], 100)
+			temp_child[0] = self.polynomial_mutation(temp_child[0], 100)
+			temp_child[1] = self.polynomial_mutation(temp_child[1], 100)
 
 
-		# Init population + append children objectives to population objectives
-		child = self.evaluate_objective_values(temp_child,2)
-
-		print(child)
+			# Init population + append children objectives to population objectives
+			child = self.calculate_objective_values(temp_child,len(temp_child))
+		except:
+			return
 		
 		return child
 
 
 	def get_fitness(self):
-		return self.n_generations 
+		return self.n_generations
 	
 	
 	def split_populations(self, population, n):
@@ -411,21 +429,22 @@ class COEAUtils:
 	def cooperative_process(self, population):	
 		combined_solution = []
 
-		length_population = len(population[-1])
+		length_population = len(population)
+		n_elements = len(population[-1])
 
-		index = random.randint(0, length_population-1)
+		index = random.randint(0, n_elements-1)
 		for i in range(length_population):
 			combined_solution.append(population[i][index])
 		
-		combined_solution = self.evaluate_objective_values(combined_solution, len(combined_solution))
+		combined_solution = self.calculate_objective_values(combined_solution, len(combined_solution))
 
 		# Update Archive
 		self.archive.extend(combined_solution)
+
 		
 		#for j in range(len(Si)):
 			#"""TODO: Pareto Rank"""
 			#"""TODO: Calculate Niche count"""
-
 
 		#Return the solution
 		return combined_solution
@@ -436,20 +455,22 @@ class COEAUtils:
 		# Define the competition pool as an empty list
 		competition_pool = []
 
-		length_population = len(population[-1])
+		length_population = len(population)
+		n_elements = len(population[-1])
+		
 		
 		for i in range(length_population):
 			# Insert the representative of the subpopulation in the competition pool. In this case the representative is a random index
-			index = random.randint(0, length_population-1)
+			index = random.randint(0, n_elements-1)
 			competition_pool.append(population[i][index])
 			
 
 			if length_population > len(population[i]):
-				index = random.randint(0, length_population)
-				competition_pool.extend(population[i][index])
+				index = random.randint(0, n_elements-1)
+				competition_pool.append(population[i][index])
 			elif length_population <= len(population[i]):
 				elem = random.choice(population)
-				index = random.randint(0, length_population-1)
+				index = random.randint(0, n_elements-1)
 				competition_pool.extend([elem[index]])
 
 			"""TODO: call cooperative process"""
@@ -460,6 +481,55 @@ class COEAUtils:
 		
 		#self.evaluate_objective_values(competition_pool, 2)
 		return competition_pool
+	
+
+	def temporal_archive_update(self, population):
+		r_size = len(self.archive)
+		M = len(population)
+		archive_limit = len(self.archive)
+
+		# Temporary pool representing the archive
+		p = self.archive
+		newArchive = []
+
+		# Select and remove the best archived solution from A and p
+		best = self.get_best(p)
+		p.remove(best)
+		best = self.get_best(self.archive)
+		self.archive.remove(best)
+
+		if r_size >= M:
+			newArchive.append(p)
+
+			for i in range(M, r_size):
+				# randomly select and remove an element from the archive A
+				elem = random.choice(self.archive)
+				self.archive.remove(elem)
+				newArchive.append(elem)
+
+		else:
+			for i in range(0, r_size-2):
+				# Randomly select and remove an element from the archive p
+				elem = random.choice(p)
+				p.remove(elem)
+				newArchive.append(elem)
+		
+		
+		
+		if len(newArchive) > archive_limit:
+			worst = self.get_worst(newArchive)
+			newArchive.remove(worst)
+
+
+	
+		return newArchive
+
+
+		
+
+	
+
+			
 
 
 ###################################################################################################
