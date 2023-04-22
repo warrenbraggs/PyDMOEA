@@ -15,21 +15,27 @@ class DF2(Problem):
         return f1, f2
 
     def f1(self, x):
-        v = math.sin(0.5 * math.pi * self.n_generations)
-        G = abs(v)
-        index = int((self.n_variables - 1) * G)
-        return x[index]
+        try:
+            v = math.sin(0.5 * math.pi * self.n_generations)
+            G = abs(v)
+            index = int((self.n_variables - 1) * G)
+            return (x[index])
+        except:
+            return
 
     def f2(self, x):
-        v = math.sin(0.5 * math.pi * self.n_generations)
-        G = abs(v)
-        r = int((self.n_variables - 1) * G)
-        not_r = [k for k in range(self.n_variables) if k != r]
-        index = max(not_r)
-        
-        sigma = sum((x - G) ** 2 for x in x[:index])
-        g = 1 + sigma
+        try:
+            v = math.sin(0.5 * math.pi * self.n_generations)
+            G = abs(v)
+            r = int((self.n_variables - 1) * G)
+            not_r = [k for k in range(self.n_variables) if k != r]
+            index = max(not_r)
+            
+            sigma = sum((x - G) ** 2 for x in x[:index])
+            g = 1 + sigma
 
-        return g * (1 - math.sqrt(self.f1(x)/g))
+            return (g * (1 - math.sqrt(self.f1(x)/g)))
+        except:
+            return
 
         

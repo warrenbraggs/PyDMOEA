@@ -17,12 +17,14 @@ class DF1(Problem):
         return x[0]
 
     def f2(self, x):
-        v = math.sin(0.5 * math.pi * self.n_generations)
-        G = abs(v)
-        H = 0.75 * v + 1.25
-        sigma = sum(((x - 2 - G) ** 2) for x in x[1:])
-        g = 1 + sigma
-
-        return g * (1 - ((self.f1(x) / g) ** H))
+        try:
+            v = math.sin(0.5 * math.pi * self.n_generations)
+            G = abs(v)
+            H = 0.75 * v + 1.25
+            sigma = sum(((x - 2 - G) ** 2) for x in x[1:])
+            g = 1 + sigma
+            return (g * (1 - ((self.f1(x) / g) ** H))/2)
+        except:
+            return
 
         

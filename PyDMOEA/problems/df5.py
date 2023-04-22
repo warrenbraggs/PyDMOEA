@@ -14,17 +14,23 @@ class DF5(Problem):
         return f1, f2
 
     def f1(self, x):
-        G = math.sin(0.5 * math.pi * self.n_generations)
-        w = math.floor(10 * G)
-        g = 1 + sum((x_i - G) ** 2 for x_i in x[1:])
-        return (g * (x[0] + 0.02 * math.sin(w * math.pi * x[0])))
+        try:
+            G = math.sin(0.5 * math.pi * self.n_generations)
+            w = math.floor(10 * G)
+            g = 1 + sum((x_i - G) ** 2 for x_i in x[1:])
+            return (g * (x[0] + 0.02 * math.sin(w * math.pi * x[0])))
+        except:
+            return
 
 
     def f2(self, x):
-        G = math.sin(0.5 * math.pi * self.n_generations)
-        w = math.floor(10 * G)
-        g = 1 + sum((x_i - G) ** 2 for x_i in x[1:])
-        return (g * (1 - x[0] + 0.02 * math.sin(w * math.pi * x[0])))
+        try:
+            G = math.sin(0.5 * math.pi * self.n_generations)
+            w = math.floor(10 * G)
+            g = 1 + sum((x_i - G) ** 2 for x_i in x[1:])
+            return (g * (1 - x[0] + 0.02 * math.sin(w * math.pi * x[0]))) * 2
+        except:
+            return
 
        
 
