@@ -1,5 +1,4 @@
 import numpy as np
-from statistics import mean
 import matplotlib.pyplot as plt
 
 from Utils import NSGAUtils, MOEADUtils, COEAUtils
@@ -12,7 +11,7 @@ from problems.bnh import BNH    # not working
 from problems.df1 import DF1
 from problems.df2 import DF2
 from problems.df3 import DF3
-from problems.df5 import DF5
+from problems.df5 import DF5    
 from problems.df7 import DF7    # not working
 from pymoo.problems import get_problem
 
@@ -41,22 +40,22 @@ max: int
 """
 n_individuals = 100 
 n_generations = 200 
-n_variables = 30  
+n_variables = 2
 min = 0
 max = 1
 
 # ZDT1, ZDT2 for STATIC: 30 objectives
 # ZDT4 for STATIC: 10 objectives
-# DF1, DF2, DF3, DF7, DF9 for DYNAMIC: 2 objectives (used in pymoo)
+# DF1, DF2, DF3, DF5 for DYNAMIC: 2 objectives (used in pymoo)
 
 
 # Initialisation
-problem = ZDT1(n_generations)
-algorithm = COEAUtils(problem, n_individuals, n_generations, n_variables, min, max)
+problem = DF2(n_generations)
+algorithm = NSGAUtils(problem, n_individuals, n_generations, n_variables, min, max)
 evolution = Evolution(problem, n_individuals, n_generations, n_variables, min, max)
 
 # Optimal Pareto Front for testing a problem
-pf = get_problem("zdt1")
+pf = get_problem("df2")
 x, y = pf.pareto_front().T
 
 
@@ -67,8 +66,7 @@ population = algorithm.generate_random_solutions(n_individuals)
 # Evolution of the algorith given the problem
 # Number of splits for COEA (10 suggested)
 # Number of changes for Dynamic (30 suggested)
-function = evolution.evolveCOEA(population, 10)
-#function = evolution.evolveNSGAII(population)
+function = evolution.evolveDNSGAIIB(population, 20)
 
 
 # Performance Indicators
@@ -76,7 +74,7 @@ function = np.array(function)
 function_mean_value = get_mean(function)
 
 migd = IGD(pf.pareto_front())
-print("MIGD", migd(function_mean_value)/np.prod(function_mean_value))
+print("MIGD", migd(function_mean_value)/function_mean_value[1])
 mhv = HV(function_mean_value)
 print("MHV", mhv(pf.pareto_front())/np.prod(function_mean_value))
 
