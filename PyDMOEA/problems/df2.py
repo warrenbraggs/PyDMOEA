@@ -29,9 +29,8 @@ class DF2(Problem):
             G = abs(v)
             r = int((self.n_variables - 1) * G)
             not_r = [k for k in range(self.n_variables) if k != r]
-            index = max(not_r)
-            
-            sigma = sum((x - G) ** 2 for x in x[:index])
+        
+            sigma = sum((x - G) ** 2 for x in x[not_r[0]:])
             g = 1 + sigma
 
             return (g * (1 - math.sqrt(self.f1(x)/g)))

@@ -22,7 +22,7 @@ class DF3(Problem):
             H = G + 1.5
 
             g = 1 + (sum(x[1:]) - G - self.f1(x) ** H) ** 2
-            return (g * (1 - (self.f1(x) / g) ** H)) * 2
+            return (g * (1 - (self.f1(x) / g) ** H)) * 1.5
         except:
             return
         
