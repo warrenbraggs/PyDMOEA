@@ -21,7 +21,7 @@ class ZDT4(Problem):
             sigma = sum((x ** 2 - 10 * math.cos(4 * math.pi * x)) for x in x[1:])
             g = 1 + 10*(self.n_variables - 1) + sigma
             h = 1 - math.sqrt(self.f1(x)/g)
-            return (g * h) / 50
+            return (g * h) / 30
         except:
             return
     
