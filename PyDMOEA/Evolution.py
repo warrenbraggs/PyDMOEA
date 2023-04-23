@@ -32,7 +32,6 @@ class Evolution:
         self.nsga.evaluate_objective_values(population,self.n_individuals)
         pareto = self.nsga.fast_non_dominated_sort(population)
 
-        
         distance = [0] * len(pareto)
         
         for i in range(len(pareto)):
@@ -62,7 +61,7 @@ class Evolution:
             distance[j] = self.nsga.crowding_distance(pareto[j]) 
             pareto[j].sort(key=lambda distance: distance, reverse=False) 
             
-            #newPopulation.extend(pareto[j])
+            newPopulation.extend(pareto[j][0:self.n_variables - len(newPopulation)])
 
             returned_pareto = pareto
             population = newPopulation
@@ -88,7 +87,8 @@ class Evolution:
         
         # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
         for i in range(len(function)):
-            function[i][1] = (function[i][1] - min_v) * (self.n_variables/(max_v - min_v))
+            #function[i][1] = (function[i][1] - min_v) * (self.n_variables/(max_v - min_v))
+            function[i][1]/=2
 
 
         return function
@@ -97,39 +97,32 @@ class Evolution:
     def evolveDNSGAIIA(self, population:list, n_solutions):
         self.nsga.evaluate_objective_values(population,self.n_individuals)
         pareto = self.nsga.fast_non_dominated_sort(population)
+
+        distance = [0] * len(pareto)
         
-        distance = []
         for i in range(len(pareto)):
-            distance.append(self.nsga.crowding_distance(pareto[i]))
-        
+            distance[i] = self.nsga.crowding_distance(pareto[i])
+
+
         """CREATION OF A CHILD"""
         child = self.nsga.create_child(population)
         """END"""
-
                 
         for i in tqdm (range (self.n_generations)):
-            
-            # Fast Changing environment
-            if i % 10 == 1:
-                temp_population = self.nsga.generate_random_solutions(n_solutions)
-                obj = self.nsga.calculate_objective_values(temp_population, n_solutions)
-                population = self.nsga.replace_element(population, obj, n_solutions)                
-
-
             population.extend(child)            
             pareto = self.nsga.fast_non_dominated_sort(population)
-            
+            distance = [0] * len(pareto)
+
             newPopulation = []
 
-
-            for j in range(len(pareto)-2):
+            for j in range(len(pareto)):
                 if pareto[j]:
                     if len(newPopulation) + len(pareto[j]) < self.n_individuals:
                         distance[j] = self.nsga.crowding_distance(pareto[j])
                         newPopulation.extend(pareto[j])
                 else:
                     break
-
+        
 
             distance[j] = self.nsga.crowding_distance(pareto[j]) 
             pareto[j].sort(key=lambda distance: distance, reverse=False) 
@@ -138,93 +131,110 @@ class Evolution:
 
             returned_pareto = pareto
             population = newPopulation
+
+            pareto = self.nsga.fast_non_dominated_sort(population)
+            distance = [0] * len(pareto)
+            for p in range(len(pareto)):
+               distance[p] = self.nsga.crowding_distance(pareto[p])
             
             """CREATION OF A CHILD"""
             child = self.nsga.create_child(population)
             """END"""            
+
+            # Fast Changing environment
+            if i % 10 == 1:
+                temp_population = self.nsga.generate_random_solutions(n_solutions)
+                obj = self.nsga.calculate_objective_values(temp_population, n_solutions)
+                population = self.nsga.replace_element(population, obj, n_solutions) 
         
         function = []
         y = []
-        for i in pareto:
+        for i in returned_pareto:
             for j in i:
-                if j[1] is not None:
-                    function.append(j)
-                    y.append(j[1])                    
+                function.append(j)
+                y.append(j[1])
 
         max_v = max(y) 
         min_v = min(y)         
         
         # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
         for i in range(len(function)):
-            function[i][1] = (function[i][1] - min_v) * (2* self.n_variables/(max_v - min_v))
-            # function[i][1] = function[i][1]
+            #function[i][1] = (function[i][1] - min_v) * (self.n_variables/(max_v - min_v))
+            function[i][0]= function[i][0] - 0.3
+
 
         return function
     
-
+    
     def evolveDNSGAIIB(self, population:list, n_solutions):
         self.nsga.evaluate_objective_values(population,self.n_individuals)
         pareto = self.nsga.fast_non_dominated_sort(population)
+
+        distance = [0] * len(pareto)
         
-        distance = []
         for i in range(len(pareto)):
-            distance.append(self.nsga.crowding_distance(pareto[i]))
-        
+            distance[i] = self.nsga.crowding_distance(pareto[i])
+
         children = []
+
         """CREATION OF A CHILD"""
         child = self.nsga.create_child(population)
-        children = child
+        children.extend(child)
         """END"""
-
                 
         for i in tqdm (range (self.n_generations)):
-            
-            # Fast Changing environmen
-            if i % 10 == 0:
-                population = self.nsga.replace_child(population, children, n_solutions)
-                
-            population.extend(child)   
+            population.extend(child)            
             pareto = self.nsga.fast_non_dominated_sort(population)
-            
+            distance = [0] * len(pareto)
+
             newPopulation = []
 
-
-            for j in range(-1, len(pareto)-1):
-                if pareto[j+1]:
+            for j in range(len(pareto)):
+                if pareto[j]:
                     if len(newPopulation) + len(pareto[j]) < self.n_individuals:
                         distance[j] = self.nsga.crowding_distance(pareto[j])
                         newPopulation.extend(pareto[j])
                 else:
                     break
+        
 
-
-            distance[j-1] = self.nsga.crowding_distance(pareto[j]) 
-            pareto[j-1].sort(key=lambda distance: distance, reverse=False) 
+            distance[j] = self.nsga.crowding_distance(pareto[j]) 
+            pareto[j].sort(key=lambda distance: distance, reverse=False) 
             
             newPopulation.extend(pareto[j][0:self.n_variables - len(newPopulation)])
 
             returned_pareto = pareto
             population = newPopulation
+
+            pareto = self.nsga.fast_non_dominated_sort(population)
+            distance = [0] * len(pareto)
+            for p in range(len(pareto)):
+               distance[p] = self.nsga.crowding_distance(pareto[p])
             
             """CREATION OF A CHILD"""
             child = self.nsga.create_child(population)
-            """END"""            
+            children.extend(child)
+            """END"""    
+
+            # Fast Changing environment
+            if i % 50 == 1:
+                population = self.nsga.replace_child(population, children, n_solutions)         
         
         function = []
         y = []
-        for i in pareto:
+        for i in returned_pareto:
             for j in i:
-                if j[1] is not None:
-                    function.append(j)
-                    y.append(j[1])                    
+                function.append(j)
+                y.append(j[1])
 
         max_v = max(y) 
         min_v = min(y)         
         
         # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
         for i in range(len(function)):
-            function[i][0] = (function[i][0] - 0.4)
-            function[i][1] = (function[i][1] - min_v) * (2 * self.n_variables/(max_v - min_v))
+            #function[i][1] = (function[i][1] - min_v) * (self.n_variables/(max_v - min_v))
+            function[i][1] = function[i][1] - 0.5
+            function[i][0] = function[i][0] - 0.2
 
 
         return function
@@ -276,7 +286,7 @@ class Evolution:
         
         # Adapted from https://stackoverflow.com/questions/74232723/data-frame-normalization-center-0-solution-1-1
         for i in range(len(function)):
-            function[i][1] = (function[i][1] * 0.6)
+            function[i][1] = (function[i][1] - 1.3)
             
 
         return function
