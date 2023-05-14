@@ -81,12 +81,14 @@ class Genetic:
         list
             Best individual according to the parameters
         """
+        # First element is temporary the best
         best = population[0]
         
         for i in range(1,len(population)):
             if population[i] > best:
                 best = population[i]
 
+        # Return the best value
         return best
 
     def sbx(self, parent1, parent2, n_c):
@@ -109,13 +111,15 @@ class Genetic:
             List of 2 individuals generated
         """
         for i, (x1, x2) in enumerate(zip(parent1, parent2)):
+            # Determine a random u value between 0 to 1
             u = random.random()
+            # Calculate beta
             if u <= 0.5:
                 beta = (2 * u) ** (1/(n_c + 1))
             else:
                 beta = (1/(2 * (1 - u))) ** (1/(n_c + 1))
 
-
+            # Create the new children
             parent1[i] = 0.5 * ((1 + beta) * x1 + (1 - beta) * x2)
             parent2[i] = 0.5 * ((1 - beta) * x1 + (1 + beta) * x2)
 
@@ -140,11 +144,13 @@ class Genetic:
             List of individuals mutated
         """
 
-        xmin = 0
-        xmax = 1
+        xmin = 0    # Lower boundary for mutation
+        xmax = 1    # Upper boundary for mutation
         for i in range(len(population)):
             x = population[i]
+            # Generate a random number between 0 to 1
             u = random.random()
+            # Calculate delta
             if u <= 0.5:
                 delta = (2 * u) ** ((1 / (eta + 1))) - 1	
                 delta_x = xmin - x			
@@ -152,9 +158,11 @@ class Genetic:
                 delta = 1 - (2 * (1 - u)) ** (1 / (eta + 1))
                 delta_x = xmax - x
 
+            # Create the mutated solutions
             x_ = x + delta_x * delta
 
             population[i] = x_
 
+        # Return the new solutions
         return population
     
