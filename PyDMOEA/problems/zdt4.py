@@ -35,6 +35,8 @@ class ZDT4(Problem):
     def f1(self, x):
         """ Function 1 of the MOP
 
+        Adapted from: https://pymoo.org/problems/multi/zdt.html
+
         Parameters
         ----------
         x : list
@@ -50,6 +52,8 @@ class ZDT4(Problem):
     def f2(self, x): 
         """Function 2 of the MOP
 
+        Adapted from: https://pymoo.org/problems/multi/zdt.html
+
         Parameters
         ----------
         x : list
@@ -58,7 +62,7 @@ class ZDT4(Problem):
         Returns
         -------
         float
-            Calculate value from sub-functions g and h
+            Calculate the value from the sub-functions g, h and return f2's value
         """
         try:
             sigma = sum((x ** 2 - 10 * math.cos(4 * math.pi * x)) for x in x[1:])
