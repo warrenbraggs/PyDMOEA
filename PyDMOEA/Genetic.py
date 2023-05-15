@@ -24,7 +24,6 @@ class Genetic:
         self.max = max
         
 	
-   
     def isDominated(self, pop1, pop2):
         """Helper function to determine which population is dominant
 
@@ -42,6 +41,7 @@ class Genetic:
         """
 
         return (True and pop1 <= pop2) and (False or pop1 < pop2)
+
 
     def generate_random_solutions(self, n):
         """ Generation of random population used for static and dynamic optimisation
@@ -91,6 +91,7 @@ class Genetic:
         # Return the best value
         return best
 
+
     def sbx(self, parent1, parent2, n_c):
         """ Simulated Binary Crossver function
 
@@ -124,8 +125,6 @@ class Genetic:
             parent2[i] = 0.5 * ((1 - beta) * x1 + (1 + beta) * x2)
 
         return [parent1, parent2]
-
-
 
 
     def polynomial_mutation(self, population, eta):

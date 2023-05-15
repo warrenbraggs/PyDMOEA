@@ -28,6 +28,7 @@ class Evolution:
         self.n_generations = n_generations
         self.n_variables = n_variables
 
+
     def evolveNSGAII(self, population:list):
         """ Evolution of the NSGAII
 

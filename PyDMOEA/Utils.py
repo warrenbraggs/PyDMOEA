@@ -49,6 +49,7 @@ class NSGAUtils:
 
 		return self.genetic.isDominated(pop1, pop2)
 
+
 	def generate_random_solutions(self, n):
 		""" Generation of random population used for static and dynamic optimisation
 
@@ -64,6 +65,7 @@ class NSGAUtils:
 		"""
 		return self.genetic.generate_random_solutions(n)
 	
+
 	def evaluate_objective_values(self, population, n):
 		""" Evaluate the values according to the problem specifications
 
@@ -106,6 +108,7 @@ class NSGAUtils:
 			temp_obj.append([f1,f2])
 		return temp_obj
 	
+
 	def replace_element(self, population:list, new_element, n):
 		""" Replace individuals with new random elements
 
@@ -130,6 +133,7 @@ class NSGAUtils:
 
 		return population
 
+
 	def replace_child(self, population:list, children, n):
 		""" Replace selected individuals with random mutated solutions
 
@@ -153,6 +157,7 @@ class NSGAUtils:
 			population.pop(index_child)
 			population.append(random.choice(children))
 		return population	
+
 
 	def fast_non_dominated_sort(self, population:list):
 		""" Determination the Optimal set of solutions as part of the NSGAII Algorithm
@@ -211,6 +216,7 @@ class NSGAUtils:
 
 		# Return the optimal fronts
 		return pareto_front
+
 
 	def crowding_distance(self, pareto_front):
 		""" Determine the crowding distance between the individuals obtained by the Fast Non Dominated Sort
@@ -293,6 +299,7 @@ class NSGAUtils:
 			Best individual according to the parameters
 		"""
 		return self.genetic.get_best(population)
+
 
 	def sbx(self, parent1, parent2, n_c):
 		""" Simulated Binary Crossver function
@@ -383,7 +390,6 @@ class NSGAUtils:
 	
 	
 
-###################################################################################################
 
 
 class COEAUtils:
@@ -417,6 +423,7 @@ class COEAUtils:
 		self.archive = []
 		self.genetic = Genetic(n_individuals, n_generations, n_variables, min, max)
 
+
 	def generate_random_solutions(self, n):
 		""" Generation of random population used for static and dynamic optimisation
 
@@ -432,6 +439,7 @@ class COEAUtils:
 		"""
 		return self.genetic.generate_random_solutions(n)
 	
+
 	def evaluate_objective_values(self, population, n):
 		""" Evaluate the values according to the problem specifications
 
@@ -452,6 +460,7 @@ class COEAUtils:
 			self.objective_values.append([f1, f2])
 		return self.objective_values
 	
+
 	def calculate_objective_values(self, population, n):
 		""" Calculate the objective value according to the problem specifications
 
@@ -531,6 +540,7 @@ class COEAUtils:
 		"""
 		return self.genetic.get_best(population)
 
+
 	def get_worst(self, population):
 		""" Helper function to determine the worst individual
 
@@ -593,6 +603,7 @@ class COEAUtils:
 
 		return self.genetic.polynomial_mutation(population, eta)
 	
+
 	def create_child(self, population):
 		""" Create children based on the individuals given
 
@@ -697,7 +708,6 @@ class COEAUtils:
 		return solution
 
 
-	
 	def competitive_process(self, population:list):
 		""" Implementation of the Competitive mechanism for performing the COEA
 

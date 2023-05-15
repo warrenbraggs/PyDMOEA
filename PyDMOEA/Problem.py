@@ -2,7 +2,7 @@ from abc import abstractmethod, ABC
 
 class Problem:
     def __init__(self, n_variables):
-        """ Problem is an abstract class that defines the Multi-Objective Problem (MOP) and Dynamic Multi-Objective Problem (DMOP) used
+        """ Problem is an abstract class that defines the Multi-Objective Problem (MOP) and Dynamic Multi-Objective Problem (DMOP) used by the algorithms
 
         Parameters
         ----------
