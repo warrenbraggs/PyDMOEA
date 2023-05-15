@@ -58,20 +58,20 @@ max : int
 """
 n_individuals = 100 
 n_generations = 200
-n_variables = 30
+n_variables = 2
 min = 0
 max = 1
 
 # Initialisation of the problem 
-problem = ZDT1(n_generations)
+problem = DF2(n_generations)
 # Initialisation of the algorithm (NSGAII, COEA, DNSGAIIA, DNSGAIIB, DCOEAA, DCOEAB)
-algorithm = NSGAUtils(problem, n_individuals, n_generations, n_variables, min, max)
+algorithm = COEAUtils(problem, n_individuals, n_generations, n_variables, min, max)
 # Initialisation of the evolution (static/dynamic) 
 evolution = Evolution(problem, n_individuals, n_generations, n_variables, min, max)
 
 
 # Definition of the Pareto Optimal Front by pymoo
-pf = get_problem("zdt1")
+pf = get_problem("df2")
 x, y = pf.pareto_front().T
 
 
@@ -90,14 +90,14 @@ DCOEAA: number of splits (n_splits) = 10, stocastic process ratio (sc ratio) = 1
 DCOEAB: number of splits (n_splits) = 10
 """
 # Start evolution
-function = evolution.evolveCOEA(population, 10)
+function = evolution.evolveDCOEAB(population, 10)
 
 # End the stopwatch for measuring the time
 end_time = time.time()
 # Time calculation
 time = end_time - start_time
 # Display time taken
-print(time)
+print('Time', time)
 
 
 # Convert the list into numpy array
